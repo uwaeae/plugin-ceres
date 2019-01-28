@@ -1,0 +1,19 @@
+<div class="row" data-builder-grid="{{ {cols: 12, spacing: 30} | json_encode }}">
+
+    {% set sum = 0 %}
+    {% set nextIdx = columns | length %}
+
+    <!-- {{ columns | json_encode }} -->
+    {% for i, column in columns %}
+        {% set sum = sum + column.mobile %}
+        <div class="col-12 col-md-{{ column.mobile }}"
+             data-builder-child-container="{{ i }}"
+             data-builder-grid-column="columns.{{ i }}"></div>
+    {% endfor %}
+
+    {% if sum % 12 > 0 %}
+        <div class="col-12 col-md-{{ 12 - (sum % 12) }}"
+             data-builder-child-container="{{ nextIdx }}"
+             data-builder-grid-column="columns.{{ nextIdx }}"></div>
+    {% endif %}
+</div>

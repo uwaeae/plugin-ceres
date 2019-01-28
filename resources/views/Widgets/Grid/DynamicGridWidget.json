@@ -1,0 +1,20 @@
+{
+    "identifier": "Ceres::DynamicGridWidget",
+    "label": "Widget.gridDynamicLabel",
+    "previewImageURL": "/images/widgets/grid-4-col.svg",
+    "type": "structure",
+    "categories": ["structure"],
+    "position": 300,
+    "widgetClass": "Ceres\\Widgets\\Grid\\DynamicGridWidget",
+    "settings": {
+        "text": {
+            "type": "text",
+            "required": true,
+            "defaultValue": "",
+            "options": {
+                "name": "Widget.titleBarTextLabel",
+                "tooltipText": "Widget.titleBarTextTooltip"
+            }
+        }
+    }
+}
