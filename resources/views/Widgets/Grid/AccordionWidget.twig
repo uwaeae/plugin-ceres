@@ -1,0 +1,43 @@
+{% import "Ceres::Widgets.Helper.WidgetHelper" as WidgetHelper %}
+
+{% set sections      = widget.settings.sections.mobile %}
+{% set allowMultiple = widget.settings.allowMultiple.mobile %}
+{% set accordionId   = uid() %}
+{% set renderContent = false %}
+
+{% for section in sections if section.title is not empty %}
+    {% set renderContent = true %}
+{% endfor %}
+
+{% if renderContent %}
+    <div class="widget accordion widget-{{ widget.settings.appearance.mobile | default('primary')  }}"{% if not allowMultiple %} id="accordion_{{ accordionId }}"{% endif %}>
+        {% for section in sections if section.title is not empty %}
+            <div class="card">
+                <div class="card-header" id="heading_{{ section.uuid }}">
+                    <h2 class="mb-0">
+                        <button class="btn btn-link"
+                                type="button"
+                                data-toggle="collapse"
+                                data-target="#body_{{ section.uuid }}"
+                                aria-expanded="{{ loop.first | json_encode }}"
+                                aria-controls="body_{{ section.uuid }}"
+                                {{ WidgetHelper.makeClickable(isPreview) }}>
+                            {{ section.title }}
+                        </button>
+                    </h2>
+                </div>
+
+                <div id="body_{{ section.uuid }}"
+                     class="collapse{% if loop.first %} show{% endif %}"
+                     aria-labelledby="heading_{{ section.uuid }}"
+                        {% if not allowMultiple %} data-parent="#accordion_{{ accordionId }}"{% endif %}>
+
+                    <div class="card-body"{{ WidgetHelper.addChildContainer(section.uuid, isPreview) }}>
+                        {{ children[section.uuid] | raw }}
+                    </div>
+
+                </div>
+            </div>
+        {% endfor %}
+    </div>
+{% endif %}

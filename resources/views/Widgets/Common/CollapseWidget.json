@@ -1,7 +1,8 @@
 {
     "identifier": "Ceres::CollapseWidget",
     "label": "Widget.collapseLabel",
-    "previewImageURL": "/images/widgets/collapse.svg",
+    "deprecated": true,
+    "previewImageURL": "/images/widgets/faq.svg",
     "type": "static",
     "categories": [
         "text"

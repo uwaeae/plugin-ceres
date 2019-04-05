@@ -1,0 +1,47 @@
+{
+    "identifier": "Ceres::AccordionWidget",
+    "label": "Widget.accordionLabel",
+    "previewImageURL": "/images/widgets/collapse.svg",
+    "type": "static",
+    "categories": [
+        "structure"
+    ],
+    "position": 1300,
+    "widgetClass": "Ceres\\Widgets\\Grid\\AccordionWidget",
+    "settings": {
+        "appearance": {
+            "type": "select",
+            "required": true,
+            "defaultValue": "none",
+            "options": "@include(optionalAppearance)"
+        },
+        "allowMultiple": {
+            "type": "checkbox",
+            "defaultValue": false,
+            "options": {
+                "name": "Widget.accordionAllowMultipleLabel"
+            }
+        },
+        "sections": {
+            "type": "vertical",
+            "isList": "[1,]",
+            "options": {
+                "name": "Widget.accordionSectionLabel"
+            },
+            "children": {
+                "title": {
+                    "type": "text",
+                    "required": true,
+                    "defaultValue": "",
+                    "options": {
+                        "name": "Widget.accordionTitleLabel",
+                        "tooltipText": "Widget.accordionTitleTooltip"
+                    }
+                },
+                "uuid": {
+                    "type": "uuid"
+                }
+            }
+        }
+    }
+}

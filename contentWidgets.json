@@ -640,7 +640,8 @@
     {
         "identifier": "Ceres::CollapseWidget",
         "label": "Widget.collapseLabel",
-        "previewImageURL": "/images/widgets/collapse.svg",
+        "deprecated": true,
+        "previewImageURL": "/images/widgets/faq.svg",
         "type": "static",
         "categories": [
             "text"
@@ -2661,6 +2662,93 @@
                                 "pdf"
                             ]
                         }
+                    }
+                }
+            }
+        }
+    },
+    {
+        "identifier": "Ceres::AccordionWidget",
+        "label": "Widget.accordionLabel",
+        "previewImageURL": "/images/widgets/collapse.svg",
+        "type": "static",
+        "categories": [
+            "structure"
+        ],
+        "position": 1300,
+        "widgetClass": "Ceres\\Widgets\\Grid\\AccordionWidget",
+        "settings": {
+            "appearance": {
+                "type": "select",
+                "required": true,
+                "defaultValue": "none",
+                "options": {
+                    "name": "Widget.widgetAppearanceLabel",
+                    "tooltipText": "Widget.widgetAppearanceTooltip",
+                    "listBoxValues": [
+                        {
+                            "value": "none",
+                            "caption": "Widget.widgetAppearanceNone",
+                            "position": 0
+                        },
+                        {
+                            "value": "primary",
+                            "caption": "Widget.widgetAppearancePrimary",
+                            "position": 1
+                        },
+                        {
+                            "value": "secondary",
+                            "caption": "Widget.widgetAppearanceSecondary",
+                            "position": 2
+                        },
+                        {
+                            "value": "success",
+                            "caption": "Widget.widgetAppearanceSuccess",
+                            "position": 3
+                        },
+                        {
+                            "value": "info",
+                            "caption": "Widget.widgetAppearanceInfo",
+                            "position": 4
+                        },
+                        {
+                            "value": "warning",
+                            "caption": "Widget.widgetAppearanceWarning",
+                            "position": 5
+                        },
+                        {
+                            "value": "danger",
+                            "caption": "Widget.widgetAppearanceDanger",
+                            "position": 6
+                        }
+                    ]
+                }
+            },
+            "allowMultiple": {
+                "type": "checkbox",
+                "defaultValue": false,
+                "options": {
+                    "name": "Widget.accordionAllowMultipleLabel"
+                }
+            },
+            "sections": {
+                "type": "vertical",
+                "isList": "[1,]",
+                "options": {
+                    "name": "Widget.accordionSectionLabel"
+                },
+                "children": {
+                    "title": {
+                        "type": "text",
+                        "required": true,
+                        "defaultValue": "",
+                        "options": {
+                            "name": "Widget.accordionTitleLabel",
+                            "tooltipText": "Widget.accordionTitleTooltip"
+                        }
+                    },
+                    "uuid": {
+                        "type": "uuid"
                     }
                 }
             }
