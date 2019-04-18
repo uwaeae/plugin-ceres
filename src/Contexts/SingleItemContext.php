@@ -3,8 +3,10 @@
 namespace Ceres\Contexts;
 
 use IO\Helper\ContextInterface;
+use IO\Services\CategoryService;
 use IO\Services\CustomerService;
 use IO\Services\ItemService;
+use Plenty\Plugin\Application;
 use Plenty\Plugin\ConfigRepository;
 
 
@@ -16,6 +18,7 @@ class SingleItemContext extends GlobalContext implements ContextInterface
     public $attributeNameMap;
     public $variationUnits;
     public $customerShowNetPrices;
+    public $defaultCategory;
 
     public function init($params)
     {
@@ -46,5 +49,23 @@ class SingleItemContext extends GlobalContext implements ContextInterface
 
         $this->bodyClasses[] = "item-" . $itemData['item']['id'];
         $this->bodyClasses[] = "variation-" . $itemData['variation']['id'];
+       
+        $defaultCategoryId = 0;
+        $plentyId = (int) pluginApp(Application::class)->getPlentyId();
+        foreach($this->item['documents'][0]['data']['defaultCategories'] as $category)
+        {
+            if ($category['plentyId'] === $plentyId)
+            {
+                $defaultCategoryId = $category['id'];
+                break;
+            }
+        }
+
+        if($defaultCategoryId > 0)
+        {
+            /** @var CategoryService $categoryService */
+            $categoryService = pluginApp(CategoryService::class);
+            $this->defaultCategory = $categoryService->get($defaultCategoryId);
+        }
     }
 }

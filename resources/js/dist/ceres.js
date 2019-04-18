@@ -21731,8 +21731,28 @@ function _objectSpread(target) { for (var i = 1; i < arguments.length; i++) { va
 function _defineProperty(obj, key, value) { if (key in obj) { Object.defineProperty(obj, key, { value: value, enumerable: true, configurable: true, writable: true }); } else { obj[key] = value; } return obj; }
 
 Vue.component("item-image-carousel", {
-  delimiters: ["${", "}"],
-  props: ["imageUrlAccessor", "template"],
+  props: {
+    template: {
+      type: String,
+      default: "#vue-item-image-carousel"
+    },
+    maxQuantity: {
+      type: Number,
+      default: 10
+    },
+    imageUrlAccessor: {
+      type: String,
+      default: "url"
+    },
+    showThumbs: {
+      type: Boolean,
+      default: true
+    },
+    showDots: {
+      type: Boolean,
+      default: true
+    }
+  },
   data: function data() {
     return {
       currentItem: 0
@@ -21740,10 +21760,10 @@ Vue.component("item-image-carousel", {
   },
   computed: _objectSpread({
     carouselImages: function carouselImages() {
-      return this.orderByPosition(this.$options.filters.itemImages(this.currentVariation.documents[0].data.images, "urlPreview"));
+      return this.orderByPosition(this.$options.filters.itemImages(this.currentVariation.documents[0].data.images, "urlPreview")).slice(0, this.maxQuantity);
     },
     singleImages: function singleImages() {
-      return this.orderByPosition(this.$options.filters.itemImages(this.currentVariation.documents[0].data.images, this.imageUrlAccessor));
+      return this.orderByPosition(this.$options.filters.itemImages(this.currentVariation.documents[0].data.images, this.imageUrlAccessor)).slice(0, this.maxQuantity);
     }
   }, Vuex.mapState({
     currentVariation: function currentVariation(state) {
@@ -21775,7 +21795,7 @@ Vue.component("item-image-carousel", {
   },
   methods: {
     getImageCount: function getImageCount() {
-      return this.carouselImages.length;
+      return this.carouselImages.length > this.maxQuantity ? this.maxQuantity : this.carouselImages.length;
     },
     reInitialize: function reInitialize() {
       var $owl = $(this.$refs.single);
@@ -21795,7 +21815,7 @@ Vue.component("item-image-carousel", {
       var imageCount = this.getImageCount();
       $(this.$refs.single).owlCarousel({
         autoHeight: true,
-        dots: true,
+        dots: this.showDots,
         items: 1,
         lazyLoad: true,
         loop: true,
