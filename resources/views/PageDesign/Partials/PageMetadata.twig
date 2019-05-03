@@ -1,0 +1,29 @@
+<title>{{ pageMetadata.title | default(trans("Ceres::Template.headerCompanyName")) }}</title>
+{% if pageMetadata.description | trim is not empty %}
+    <meta name="description" content="{{ pageMetadata.description }}">
+{% endif %}
+<meta name="robots" content="{{ pageMetadata.robots | default("NODINDEX, NOFOLLOW") }}">
+
+<meta property="og:title" content="{{ pageMetadata.title | default(trans("Ceres::Template.headerCompanyName")) }}"/>
+<meta property="og:type"  content="{{ pageMetadata.type | default("article") }}"/>
+<meta property="og:url"   content="{{ pageMetadata.url | default(webstoreConfig.domainSsl) }}"/>
+{% if pageMetadata.imageUrl | trim is not empty %}
+    <meta property="og:image" content="{{ pageMetadata.imageUrl }}"/>
+{% endif %}
+
+<script type="application/ld+json">
+    {
+        "@context":         "http://schema.org",
+        "@type":            "WebSite",
+        "url":              "{{ pageMetadata.url | default(webstoreConfig.domainSsl) }}",
+        "name":             "{{ pageMetadata.title | default(trans("Ceres::Template.headerCompanyName")) }}",
+        "description":      "{{ pageMetadata.description | default("") }}",
+        "image":            "{{ pageMetadata.imageUrl | default("") }}",
+        "potentialAction":  {
+            "@type": "SearchAction",
+            "target": "{{ webstoreConfig.domainSsl ~ urls.search }}?query={search_term}",
+            "query-input": "required name=search_term"
+        }
+    }
+</script>
+

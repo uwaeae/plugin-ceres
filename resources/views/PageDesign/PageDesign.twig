@@ -36,6 +36,10 @@
     {% for styleTemplate in get_additional_styles() %}
         {% include styleTemplate.path ignore missing with styleTemplate.params %}
     {% endfor %}
+
+    {% embed "Ceres::PageDesign.Partials.PageMetadata" %}
+        {% block PageTitle %}{% endblock %}
+    {% endembed %}
 </head>
 
 <body class="{{ bodyClasses | join(' ') }}">

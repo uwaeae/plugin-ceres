@@ -3,7 +3,10 @@
 namespace Ceres\Contexts;
 
 use Ceres\Config\CeresConfig;
+use Ceres\Contexts\Data\PageMetadata;
+use IO\Helper\ArrayHelper;
 use IO\Helper\ContextInterface;
+use IO\Helper\SerializableContextInterface;
 use IO\Services\BasketService;
 use IO\Services\CategoryService;
 use IO\Services\CheckoutService;
@@ -15,8 +18,9 @@ use IO\Services\UrlService;
 use IO\Services\WebstoreConfigurationService;
 use Plenty\Modules\ShopBuilder\Helper\ShopBuilderRequest;
 use Plenty\Plugin\Http\Request;
+use Twig\Template;
 
-class GlobalContext implements ContextInterface
+class GlobalContext implements SerializableContextInterface
 {
     protected $params = [];
 
@@ -26,9 +30,10 @@ class GlobalContext implements ContextInterface
     /** @var Request $request */
     protected $request;
 
+    /** @var PageMetadata */
+    public $pageMetadata;
+
     public $lang;
-    public $metaLang;
-    public $forceNoIndex;
     public $template = [];
     public $templateName;
     public $categories;
@@ -38,11 +43,20 @@ class GlobalContext implements ContextInterface
     public $webstoreConfig;
     public $currencyData;
     public $showNetPrices;
-    public $homepageURL;
     public $splitItemBundle;
     public $templateEvent;
     public $isShopBuilder;
     public $bodyClasses;
+
+
+    /** @deprecated use $lang instead */
+    public $metaLang;
+
+    /** @deprecated use $pageMetadata instead */
+    public $forceNoIndex;
+
+    /** @deprecated use ShopUrl::home instead */
+    public $homepageURL;
 
     public function init($params)
     {
@@ -78,6 +92,7 @@ class GlobalContext implements ContextInterface
         $this->request = pluginApp(Request::class);
 
         $this->lang = $sessionStorageService->getLang();
+
         $this->homepageURL = pluginApp(UrlService::class)->getHomepageURL();
         $this->metaLang = 'de';
         if($this->lang == 'en')
@@ -118,6 +133,15 @@ class GlobalContext implements ContextInterface
         }
 
         $this->bodyClasses[] = $templateClass;
+
+        $this->pageMetadata = pluginApp(PageMetadata::class);
+    }
+
+    public function toArray()
+    {
+        $result = ArrayHelper::toArray($this);
+        $result['pageMetadata'] = $this->pageMetadata;
+        return $result;
     }
 
     protected function getParam($key, $defaultValue = null)
