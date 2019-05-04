@@ -1,6 +1,9 @@
 <title>{{ pageMetadata.title | default(trans("Ceres::Template.headerCompanyName")) }}</title>
-{% if pageMetadata.description | trim is not empty %}
+{% if pageMetadata.metaDescription | trim is not empty %}
     <meta name="description" content="{{ pageMetadata.description }}">
+{% endif %}
+{% if pageMetadata.keywords | trim is not empty %}
+    <meta name="keywords" content="{{ pageMetadata.keywords }}">
 {% endif %}
 <meta name="robots" content="{{ pageMetadata.robots | default("NODINDEX, NOFOLLOW") }}">
 
@@ -19,6 +22,9 @@
         "name":             "{{ pageMetadata.title | default(trans("Ceres::Template.headerCompanyName")) }}",
         "description":      "{{ pageMetadata.description | default("") }}",
         "image":            "{{ pageMetadata.imageUrl | default("") }}",
+        {% for key, value in pageMetadata.structuredData %}
+            "{{ key }}":        "{{ value }}",
+        {% endfor %}
         "potentialAction":  {
             "@type": "SearchAction",
             "target": "{{ webstoreConfig.domainSsl ~ urls.search }}?query={search_term}",

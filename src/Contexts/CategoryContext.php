@@ -4,6 +4,7 @@ namespace Ceres\Contexts;
 
 use IO\Helper\ContextInterface;
 use Plenty\Modules\Category\Models\Category;
+use Plenty\Modules\Category\Models\CategoryDetails;
 
 class CategoryContext extends GlobalContext implements ContextInterface
 {
@@ -17,9 +18,16 @@ class CategoryContext extends GlobalContext implements ContextInterface
         parent::init($params);
         
         $this->category = $params['category'];
-        
-        $this->metaRobots = str_replace('_', ', ', $this->category->details[0]->metaRobots);
 
+        /** @var CategoryDetails $categoryDetails */
+        $categoryDetails = $this->category->details[0];
+
+        $this->pageMetadata
+            ->withTitle($categoryDetails->metaTitle ? $categoryDetails->metaTitle : $categoryDetails->name )
+            ->withDescription( $categoryDetails->metaDescription )
+            ->withKeywords( $categoryDetails->metaKeywords )
+            ->withRobots( str_replace('_', ', ', $categoryDetails->metaRobots) );
+        
         $this->bodyClasses[] = "page-category";
         $this->bodyClasses[] = "category-".$this->category->id;
     }

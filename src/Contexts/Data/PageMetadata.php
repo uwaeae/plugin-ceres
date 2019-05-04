@@ -13,6 +13,9 @@ class PageMetadata
     public $title;
 
     public $description;
+    public $metaDescription;
+
+    public $keywords;
 
     public $robots;
 
@@ -21,6 +24,8 @@ class PageMetadata
     public $imageUrl;
 
     public $url;
+
+    public $structuredData = [];
 
     /** @var CeresConfig */
     private $ceresConfig;
@@ -55,7 +60,7 @@ class PageMetadata
 
     public function withTitle($title, $keepSuffix = true)
     {
-        $this->title = $title;
+        $this->title = $this->translator->trans($title);
         if ($keepSuffix)
         {
             if (strlen($this->title))
@@ -90,7 +95,7 @@ class PageMetadata
 
     public function withImage($imageUrl)
     {
-        if (!preg_match('/^https?:\/\//m', $imageUrl))
+        if (strlen($imageUrl) && !preg_match('/^https?:\/\//m', $imageUrl))
         {
             if ( substr($imageUrl, 0, 1) !== '/' )
             {
@@ -110,9 +115,32 @@ class PageMetadata
         return $this;
     }
 
-    public function withDescription($description)
+    public function withDescription($description, $metaDescription = null)
     {
-        $this->description = $description;
+        $this->description = $this->translator->trans($description);
+        $this->metaDescription = $this->translator->trans(
+            !is_null($metaDescription) ? $metaDescription : $description
+        );
+        return $this;
+    }
+
+    public function withKeywords($keywords)
+    {
+        if ( is_array($keywords))
+        {
+            $keywords = implode(", ", $keywords);
+        }
+        $this->keywords = $keywords;
+        return $this;
+    }
+
+    public function withStructuredData($data)
+    {
+        foreach($data as $key => $value)
+        {
+            $this->structuredData[$key] = $value;
+        }
+
         return $this;
     }
 }

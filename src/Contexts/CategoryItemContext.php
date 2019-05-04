@@ -33,5 +33,10 @@ class CategoryItemContext extends CategoryContext implements ContextInterface
             $itemListOptions,
             SearchOptions::SCOPE_CATEGORY
         );
+
+        if ( $this->currentPage >= $this->ceresConfig->pagination->noIndex && $this->ceresConfig->pagination->noIndex > 0 )
+        {
+            $this->pageMetadata->withRobots("NOINDEX");
+        }
     }
 }

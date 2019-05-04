@@ -7,6 +7,7 @@ use Ceres\Contexts\CategoryContext;
 use Ceres\Contexts\CategoryItemContext;
 use Ceres\Contexts\ChangeMailContext;
 use Ceres\Contexts\CheckoutContext;
+use Ceres\Contexts\Data\PageMetadata;
 use Ceres\Contexts\GlobalContext;
 use Ceres\Contexts\ItemSearchContext;
 use Ceres\Contexts\ItemWishListContext;
@@ -74,6 +75,7 @@ class TemplateServiceProvider extends ServiceProvider
 
     public function register(){
         $this->getApplication()->singleton( CeresConfig::class );
+        $this->getApplication()->singleton( PageMetadata::class );
     }
     
     public function boot(Twig $twig, Dispatcher $eventDispatcher, ConfigRepository $config)

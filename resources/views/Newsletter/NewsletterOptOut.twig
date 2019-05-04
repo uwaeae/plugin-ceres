@@ -1,8 +1,7 @@
 {% extends getPartial('page-design') %}
 
 {% block PartialHead %}
-    <meta name="robots" content="NOINDEX, NOFOLLOW">
-    <title>{{ trans("Ceres::Template.newsletterOptOutTitle") }} | {{ trans("Ceres::Template.headerCompanyName") }}</title>
+    {% set pageMetadata = pageMetadata.withTitle("Ceres::Template.newsletterOptOutTitle") %}
 {% endblock %}
 
 {% block PageBody %}

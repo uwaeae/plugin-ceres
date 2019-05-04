@@ -2,6 +2,7 @@
 
 namespace Ceres\Contexts;
 
+use IO\Extensions\Filters\ItemNameFilter;
 use IO\Helper\ContextInterface;
 use IO\Services\CustomerService;
 use IO\Services\ItemService;
@@ -46,5 +47,21 @@ class SingleItemContext extends GlobalContext implements ContextInterface
 
         $this->bodyClasses[] = "item-" . $itemData['item']['id'];
         $this->bodyClasses[] = "variation-" . $itemData['variation']['id'];
+
+        $itemImages = $this->item['documents'][0]['data']['images']['all'];
+        $this->pageMetadata
+            ->withTitle(pluginApp(ItemNameFilter::class)->getItemName($this->item['documents'][0]['data']))
+            ->withImage(count($itemImages) ? $itemImages[0]['urlPreview'] : null)
+            ->withDescription(
+                $this->item['documents'][0]['data']['texts']['description'],
+                $this->item['documents'][0]['data']['texts']['metaDescription']
+            )
+            ->withKeywords($this->item['documents'][0]['data']['texts']['keywords'])
+            ->withStructuredData([
+                'category'      => '', // TODO: get default category name
+                'releaseDate'   => $this->item['documents'][0]['data']['variation']['releasedAt'],
+                'identifier'    => $this->item['documents'][0]['data']['variation']['id'],
+                'disambiguatingDescription' => $this->item['documents'][0]['data']['texts']['shortDescription']
+            ]);
     }
 }

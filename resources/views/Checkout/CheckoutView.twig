@@ -2,8 +2,7 @@
 {% import "Ceres::PageDesign.Macros.LayoutContainer" as LayoutContainer %}
 
 {% block PartialHead %}
-    <meta name="robots" content="NOINDEX, NOFOLLOW">
-    <title>{{ trans("Ceres::Template.checkout") }} | {{ trans("Ceres::Template.headerCompanyName") }}</title>
+    {% set pageMetadata = pageMetadata.withTitle("Ceres::Template.checkout") %}
 {% endblock %}
 
 {% block PageBody %}
