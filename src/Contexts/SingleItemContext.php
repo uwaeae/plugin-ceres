@@ -18,7 +18,6 @@ class SingleItemContext extends GlobalContext implements ContextInterface
     public $attributeNameMap;
     public $variationUnits;
     public $customerShowNetPrices;
-    public $defaultCategory;
 
     public function init($params)
     {
@@ -46,24 +45,6 @@ class SingleItemContext extends GlobalContext implements ContextInterface
         $this->variationUnits = $list['units'];
 
         $this->customerShowNetPrices = $customerService->showNetPrices();
-
-        $defaultCategoryId = 0;
-        $plentyId = (int) pluginApp(Application::class)->getPlentyId();
-        foreach($this->item['documents'][0]['data']['defaultCategories'] as $category)
-        {
-            if ($category['plentyId'] === $plentyId)
-            {
-                $defaultCategoryId = $category['id'];
-                break;
-            }
-        }
-
-        if($defaultCategoryId > 0)
-        {
-            /** @var CategoryService $categoryService */
-            $categoryService = pluginApp(CategoryService::class);
-            $this->defaultCategory = $categoryService->get($defaultCategoryId);
-        }
 
         $this->bodyClasses[] = "item-" . $itemData['item']['id'];
         $this->bodyClasses[] = "variation-" . $itemData['variation']['id'];

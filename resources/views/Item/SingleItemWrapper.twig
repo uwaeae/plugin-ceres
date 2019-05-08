@@ -75,9 +75,10 @@
     {{ component("Ceres::Item.Components.SingleItem") }}
 
     {% set shopBuilderTemplate = "" %}
-    {% if defaultCategory is defined %}
+    {% set currentCategory = services.category.getCurrentCategory() %}
+    {% if currentCategory is defined %}
         {# Check for item template for specific category first #}
-        {% set shopBuilderTemplate = shop_builder_category_template(defaultCategory.id, "singleitem") %}
+        {% set shopBuilderTemplate = shop_builder_category_template(currentCategory.id, "singleitem") %}
     {% endif %}
 
     {% if shopBuilderTemplate | trim is empty %}
