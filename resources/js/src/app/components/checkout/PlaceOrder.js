@@ -96,7 +96,7 @@ Vue.component("place-order", {
         {
             this.waiting = true;
 
-            const url = "/rest/io/order/additional_information";
+            const url = "/rest/io/order/additional_information?readonlyCheckout=1";
             const params = {
                 orderContactWish: this.contactWish,
                 shippingPrivacyHintAccepted: this.shippingPrivacyHintAccepted,
@@ -117,7 +117,7 @@ Vue.component("place-order", {
 
             if (this.validateCheckout() && this.basketItemQuantity > 0)
             {
-                ApiService.post("/rest/io/checkout/payment")
+                ApiService.post("/rest/io/checkout/payment?readonlyCheckout=1")
                     .done(response =>
                     {
                         this.afterPreparePayment(response);
