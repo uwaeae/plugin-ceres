@@ -19395,7 +19395,7 @@ Vue.component("place-order", {
       var _this = this;
 
       this.waiting = true;
-      var url = "/rest/io/order/additional_information?readonlyCheckout=1";
+      var url = "/rest/io/order/additional_information";
       var params = {
         orderContactWish: this.contactWish,
         shippingPrivacyHintAccepted: this.shippingPrivacyHintAccepted,
@@ -19414,7 +19414,7 @@ Vue.component("place-order", {
       this.waiting = true;
 
       if (this.validateCheckout() && this.basketItemQuantity > 0) {
-        ApiService.post("/rest/io/checkout/payment?readonlyCheckout=1").done(function (response) {
+        ApiService.post("/rest/io/checkout/payment").done(function (response) {
           _this2.afterPreparePayment(response);
         }).fail(function (error) {
           _this2.waiting = false;
@@ -19447,7 +19447,7 @@ Vue.component("place-order", {
           var target = this.targetContinue;
 
           if (target) {
-            (0, _UrlService.navigateTo)(target);
+            (0, _UrlService.navigateTo)(target + "?readonlyCheckout=1");
           }
 
           break;
