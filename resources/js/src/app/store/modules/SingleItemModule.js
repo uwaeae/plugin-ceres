@@ -5,7 +5,8 @@ const state =
         variation: {},
         variationList: [],
         variationOrderQuantity: 1,
-        variationMarkInvalidProperties: false
+        variationMarkInvalidProperties: false,
+        selectedAttributes: {}
     };
 
 const mutations =
@@ -46,6 +47,16 @@ const mutations =
         setVariationMarkInvalidProps(state, markFields)
         {
             state.variationMarkInvalidProperties = !!markFields;
+        },
+
+        setSelectedAttributes(state, selectedAttributes)
+        {
+            state.selectedAttributes = selectedAttributes;
+        },
+
+        setSelectedAttribute(state, { attributeKey, attributeValueKey })
+        {
+            state.selectedAttributes[attributeKey] = attributeValueKey;
         }
     };
 

@@ -1,71 +1,48 @@
-import { isNull } from "util";
-import { textWidth } from "../../helper/dom";
-import uniq from "lodash/uniq";
-
-const ApiService = require("services/ApiService");
-
-// cache loaded variation data for reuse
-const VariationData = {};
+import get from "lodash/get";
 
 Vue.component("variation-select", {
 
-    delimiters: ["${", "}"],
-
-    props: [
-        "attributes",
-        "variations",
-        "variationUnits",
-        "preselect",
-        "unitPreselect",
-        "template"
-    ],
+    props: {
+        template:
+        {
+            type: String,
+            default: "#vue-variation-select"
+        },
+        itemData:
+        {
+            type: [Object, null],
+            default: null
+        }
+    },
 
     data()
     {
         return {
-            // Collection of currently selected variation attributes.
-            selectedAttributes: {},
-            possibleUnitIds: [],
-            selectedUnitId: 0
+
         };
     },
 
     computed:
     {
+        attributes()
+        {
+            return get(this.currentVariation, "documents[0].data.variationAttributeMap.attributes");
+        },
+
+        variations()
+        {
+            return get(this.currentVariation, "documents[0].data.variationAttributeMap.variations");
+        },
+
         hasEmptyOption()
         {
-            const hasEmptyVariation = this.variations.some(variation =>
-            {
-                return variation.attributes.length <= 0;
-            });
-
-            const preselectedVariationExists = this.variations.some(variation =>
-            {
-                return variation.id === this.preselect;
-            });
-
-            if (hasEmptyVariation || !preselectedVariationExists)
-            {
-                // main variation is selectable
-                return true;
-            }
-
-            // Check if all possible combinations can be selected or if an empty option is required to reset the current selection
-            const attributeCombinationCount = Object.keys(this.attributes)
-                .map(attributeId =>
-                {
-                    return Object.keys(this.attributes[attributeId].values).length;
-                })
-                .reduce((prod, current) =>
-                {
-                    return prod * current;
-                }, 1);
-
-            return (attributeCombinationCount * Object.keys(this.variationUnits).length) !== this.variations.length;
-
+            // TODO: implementieren!
+            return true;
         },
+
         ...Vuex.mapState({
-            currentVariation: state => state.item.variation
+            currentVariation: state => state.item.variation,
+            selectedAttributes: state => state.item.selectedAttributes
         })
     },
 
@@ -73,261 +50,83 @@ Vue.component("variation-select", {
     {
         this.$nextTick(() =>
         {
-            // initialize selected attributes to be tracked by change detection
-            const attributes = {};
-
-            for (const attributeId in this.attributes)
-            {
-                attributes[attributeId] = null;
-            }
-            this.selectedAttributes = attributes;
-
-            // set attributes of preselected variation if exists
-            if (this.preselect)
-            {
-                // find variation by id
-                const preselectedVariation = this.variations.filter(variation =>
-                {
-                    // eslint-disable-next-line eqeqeq
-                    return variation.variationId == this.preselect;
-                });
-
-                if (!!preselectedVariation && preselectedVariation.length === 1)
-                {
-                    const attributes = this.attributes;
-
-                    // set attributes of preselected variation
-                    this.setAttributes(preselectedVariation[0]);
-
-                    if ((preselectedVariation[0].attributes.length > 0 && this.unitPreselect > 0) || attributes.length === 0)
-                    {
-                        const possibleVariations = this.filterVariations(this.selectedAttributes);
-
-                        if (possibleVariations.length > 1)
-                        {
-                            this.setUnits(possibleVariations);
-                            this.selectedUnitId = this.unitPreselect;
-                        }
-                        else if (this.variations.length > 1 && this.attributes.length === 0)
-                        {
-                            this.setUnits(this.variations);
-                            this.selectedUnitId = this.unitPreselect;
-                        }
-                    }
-                }
-            }
+            this.initSelectedAttributes();
         });
     },
 
-    methods: {
-
-        /**
-         * Finds all variations matching a given set of attributes.
-         * @param {{[int]: int}}  attributes   A map containing attributeIds and attributeValueIds. Used to filter variations
-         * @returns {array}                    A list of matching variations.
-         */
-        filterVariations(attributes)
+    methods:
+    {
+        isEnabled()
         {
-            attributes = attributes || this.selectedAttributes;
-            return this.variations.filter(variation =>
-            {
-                for (let i = 0; i < variation.attributes.length; i++)
-                {
-                    const id = variation.attributes[i].attributeId;
-                    const val = variation.attributes[i].attributeValueId;
-
-                    if (!!attributes[id] && attributes[id] != val)
-                    {
-                        return false;
-                    }
-                }
-
-                return variation.attributes.length > 0 || this.possibleUnitIds.length > 0;
-            }).filter(variation =>
-            {
-                return this.selectedUnitId === 0 || this.selectedUnitId === variation.unitCombinationId;
-            });
-        },
-
-        /**
-         * Tests if a given attribute value is not available depending on the current selection.
-         * @param {int}     attributeId         The id of the attribute
-         * @param {int}     attributeValueId    The valueId of the attribute
-         * @returns {boolean}                   True if the value can be combined with the current selection.
-         */
-        isEnabled(attributeId, attributeValueId)
-        {
-            // clone selectedAttributes to avoid touching objects bound to UI
-            const attributes = JSON.parse(JSON.stringify(this.selectedAttributes));
-
-            attributes[attributeId] = attributeValueId;
-            return this.filterVariations(attributes).length > 0;
-        },
-
-        /**
-         * Set selected attributes by a given variation.
-         * @param {*}           variation   The variation to set as selected
-         * @returns {boolean}               true if at least one attribute has been changed
-         */
-        setAttributes(variation)
-        {
-            let hasChanges = false;
-
-            for (let i = 0; i < variation.attributes.length; i++)
-            {
-                const id = variation.attributes[i].attributeId;
-                const val = variation.attributes[i].attributeValueId;
-
-                if (this.selectedAttributes[id] !== val)
-                {
-                    this.selectedAttributes[id] = val;
-                    hasChanges = true;
-                }
-            }
-
-            return hasChanges;
+            // TODO: implementieren!
+            return true;
         },
 
         isTextCut(name)
         {
+            // TODO:
             if (this.$refs.labelBoxRef)
             {
-                return textWidth(name, "Custom-Font, Helvetica, Arial, sans-serif") > this.$refs.labelBoxRef[0].clientWidth;
+                // textWidth(name, "Custom-Font, Helvetica, Arial, sans-serif") > this.$refs.labelBoxRef[0].clientWidth;
+                return true;
             }
 
             return false;
         },
 
-        onSelectionChange(event)
+        initSelectedAttributes()
         {
-            this.$emit("is-valid-change", false);
+            let attributes = {};
 
-            if (isNull(event))
+            for (const attributeId in this.attributes)
             {
-                const values = Object.values(this.selectedAttributes);
-                const uniqueValues = [... new Set(values)];
-
-                if (uniqueValues.length === 1 && isNull(uniqueValues[0]))
-                {
-                    const mainVariation = this.variations.find(variation => !variation.attributes.length);
-
-                    if (mainVariation)
-                    {
-                        this.setVariation(mainVariation.variationId);
-                    }
-                }
+                attributes[attributeId] = null;
             }
-            else
-            {
-                // search variations matching current selection
-                const possibleVariations = this.filterVariations();
 
-                if (possibleVariations.length === 1)
-                {
-                    if (!this.selectedUnitId > 0)
-                    {
-                        this.possibleUnitIds = [];
-                    }
+            // TODO: unitCombination mitbeachten
+            const variationAttributes = this.variations[this.currentVariation.documents[0].id][0].attributes;
 
-                    // only 1 matching variation remaining:
-                    // set remaining attributes if not set already. Will trigger this method again.
-                    if (!this.setAttributes(possibleVariations[0]))
-                    {
-                        // all attributes are set => load variation data
-                        this.setVariation(possibleVariations[0].variationId);
-                    }
-                    else
-                    {
-                        this.onSelectionChange();
-                    }
-                }
-                else if (possibleVariations.length > 1)
-                {
-                    this.setUnits(possibleVariations);
-                }
-                else
-                {
-                    this.setUnits([]);
-                }
-            }
+            attributes = { ...attributes, ...variationAttributes };
+
+            this.$store.commit("setSelectedAttributes", attributes);
         },
 
         setVariation(variationId)
         {
-            if (VariationData[variationId])
-            {
-                // reuse cached variation data
-                this.$store.commit("setVariation", VariationData[variationId]);
-
-                document.dispatchEvent(new CustomEvent("onVariationChanged",
-                    {
-                        detail:
-                        {
-                            attributes: VariationData[variationId].attributes,
-                            documents: VariationData[variationId].documents
-                        }
-                    }));
-
-                this.$emit("is-valid-change", true);
-            }
-            else
-            {
-                // get variation data from remote
-                ApiService
-                    .get("/rest/io/variations/" + variationId, { template: "Ceres::Item.SingleItem" })
-                    .done(response =>
-                    {
-                        // store received variation data for later reuse
-                        VariationData[variationId] = response;
-
-                        this.$store.commit("setVariation", response);
-
-                        document.dispatchEvent(new CustomEvent("onVariationChanged", { detail: { attributes: response.attributes, documents: response.documents } }));
-
-                        this.$emit("is-valid-change", true);
-                    });
-            }
+            console.log("set variation to id: ", variationId);
         },
-        setUnits(possibleVariations)
+
+        onSelectionChange(attributeKey, attributeValueKey)
         {
-            let possibleUnitIds = [];
+            attributeValueKey = attributeValueKey || null;
 
-            if (possibleVariations.length > 0)
+            this.$store.commit("setSelectedAttribute", { attributeKey, attributeValueKey });
+
+            if (!attributeValueKey)
             {
-                possibleUnitIds = uniq(possibleVariations.map(variation =>
+                const values = Object.values(this.selectedAttributes);
+                const uniqueValues = [... new Set(values)];
+
+                if (uniqueValues.length === 1 && !uniqueValues[0])
                 {
-                    return variation.unitCombinationId;
-                }));
-            }
+                    for (const variationId in this.variations)
+                    {
+                        // TODO: unitCombination mitbeachten [0]
+                        const variation = this.variations[variationId][0];
 
-            if (possibleUnitIds.length > 1)
-            {
-                this.possibleUnitIds = possibleUnitIds;
+                        if (!Object.values(variation.attributes).length)
+                        {
+                            this.setVariation(variationId);
+                        }
+                    }
+                }
             }
             else
             {
-                this.selectedUnitId = 0;
+                // TODO: else block implementieren
+
+                console.log("else");
             }
-        }
-    },
-
-    watch:
-    {
-        currentVariation:
-        {
-            handler(newVariation, oldVariation)
-            {
-                if (oldVariation)
-                {
-                    const url = this.$options.filters.itemURL(newVariation.documents[0].data);
-                    const title = document.getElementsByTagName("title")[0].innerHTML;
-
-                    window.history.replaceState({}, title, url);
-                    document.dispatchEvent(new CustomEvent("onHistoryChanged", { detail: { title: title, url:url } }));
-
-                }
-            },
-            deep: true
         }
     }
 });

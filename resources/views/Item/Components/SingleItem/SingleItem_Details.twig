@@ -23,7 +23,10 @@
 
 <!-- Variation -->
 <div class="mb-3" v-if="variations.length > 0">
-    <variation-select template="#vue-variation-select" :attributes="attributeNameMap" :variation-units="variationUnits" :variations="variations" :preselect="currentVariation.variation.id" :unitPreselect="currentVariation.variation.unitCombinationId" @is-valid-change="isVariationSelected = $event"></variation-select>
+    <variation-select-old template="#vue-variation-select-old" :attributes="attributeNameMap" :variation-units="variationUnits" :variations="variations" :preselect="currentVariation.variation.id" :unitPreselect="currentVariation.variation.unitCombinationId" @is-valid-change="isVariationSelected = $event"></variation-select-old>
+</div>
+<div class="mb-3">
+    <variation-select></variation-select>
 </div>
 <!-- /Variation -->
 
