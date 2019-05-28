@@ -1,4 +1,5 @@
 import get from "lodash/get";
+import { isDefined } from "../../helper/utils";
 
 Vue.component("variation-select", {
 
@@ -18,7 +19,7 @@ Vue.component("variation-select", {
     data()
     {
         return {
-
+            selectedUnitId: 0
         };
     },
 
@@ -56,6 +57,42 @@ Vue.component("variation-select", {
 
     methods:
     {
+        filterVariations(selectedAttributes = this.selectedAttributes)
+        {
+            const result = {};
+
+            for (const variationId in this.variations)
+            {
+                const variation = this.variations[variationId];
+                const hasVariationAttributes = variation && Object.values(variation.attributes).length;
+                const isSelectedUnitMatching = this.selectedUnitId === 0 || this.selectedUnitId === variation.unitId;
+
+                if (!hasVariationAttributes || !isSelectedUnitMatching)
+                {
+                    continue;
+                }
+
+                let isValid = true;
+
+                for (const attributeId in variation.attributes)
+                {
+                    const attributeValue = variation.attributes[attributeId];
+
+                    if (isDefined(selectedAttributes[attributeId]) && selectedAttributes[attributeId] != attributeValue)
+                    {
+                        isValid = false;
+                    }
+                }
+
+                if (isValid)
+                {
+                    result[variationId] = this.variations[variationId];
+                }
+            }
+
+            return result;
+        },
+
         isEnabled()
         {
             // TODO: implementieren!
@@ -84,7 +121,7 @@ Vue.component("variation-select", {
             }
 
             // TODO: unitCombination mitbeachten
-            const variationAttributes = this.variations[this.currentVariation.documents[0].id][0].attributes;
+            const variationAttributes = this.variations[this.currentVariation.documents[0].id].attributes;
 
             attributes = { ...attributes, ...variationAttributes };
 
@@ -111,8 +148,8 @@ Vue.component("variation-select", {
                 {
                     for (const variationId in this.variations)
                     {
-                        // TODO: unitCombination mitbeachten [0]
-                        const variation = this.variations[variationId][0];
+                        // TODO: unitCombination mitbeachten
+                        const variation = this.variations[variationId];
 
                         if (!Object.values(variation.attributes).length)
                         {
@@ -126,6 +163,11 @@ Vue.component("variation-select", {
                 // TODO: else block implementieren
 
                 console.log("else");
+
+                // search variations matching current selection
+                const possibleVariations = this.filterVariations();
+
+                console.log("NEW!", possibleVariations);
             }
         }
     }

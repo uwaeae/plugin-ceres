@@ -131,6 +131,7 @@ Vue.component("variation-select-old", {
             attributes = attributes || this.selectedAttributes;
             return this.variations.filter(variation =>
             {
+
                 for (let i = 0; i < variation.attributes.length; i++)
                 {
                     const id = variation.attributes[i].attributeId;
@@ -221,7 +222,7 @@ Vue.component("variation-select-old", {
             {
                 // search variations matching current selection
                 const possibleVariations = this.filterVariations();
-
+                console.log("NEW!", possibleVariations);
                 if (possibleVariations.length === 1)
                 {
                     if (!this.selectedUnitId > 0)
