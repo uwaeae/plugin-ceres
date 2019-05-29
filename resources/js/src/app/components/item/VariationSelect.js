@@ -16,13 +16,6 @@ Vue.component("variation-select", {
         }
     },
 
-    data()
-    {
-        return {
-            selectedUnitId: 0
-        };
-    },
-
     computed:
     {
         possibleUnitIds()
@@ -71,7 +64,8 @@ Vue.component("variation-select", {
         ...Vuex.mapState({
             currentVariation: state => state.item.variation.documents[0].data,
             variationUnitNames: state => state.item.variationUnitNames,
-            selectedAttributes: state => state.item.selectedAttributes
+            selectedAttributes: state => state.item.selectedAttributes,
+            selectedUnitCombinationId: state => state.item.selectedUnitCombinationId
         })
     },
 
@@ -93,7 +87,7 @@ Vue.component("variation-select", {
             {
                 const variation = this.variations[variationId];
                 const hasVariationAttributes = variation && Object.keys(variation.attributes).length;
-                const isSelectedUnitMatching = this.selectedUnitId === 0 || this.selectedUnitId === variation.unitCombinationId;
+                const isSelectedUnitMatching = this.selectedUnitCombinationId === 0 || this.selectedUnitCombinationId === variation.unitCombinationId;
 
                 if (!hasVariationAttributes || !isSelectedUnitMatching)
                 {
@@ -177,14 +171,13 @@ Vue.component("variation-select", {
 
             if (this.possibleUnitIds.length > 1)
             {
-                this.selectedUnitId = unitPreselect;
+                this.$store.commit("setSelectedUnitCombinationId", unitPreselect);
             }
         },
 
         onSelectionChange(attributeKey, attributeValueKey)
         {
             attributeValueKey = parseInt(attributeValueKey) || null;
-
             this.$store.commit("setSelectedAttribute", { attributeKey, attributeValueKey });
 
             if (!attributeValueKey)
@@ -207,35 +200,48 @@ Vue.component("variation-select", {
             }
             else
             {
-                // search variations matching current selection
-                const possibleVariations = this.filterVariations();
-
-                console.log("NEW!", possibleVariations);
-
-                if (Object.keys(possibleVariations).length === 1)
-                {
-                    // only 1 matching variation remaining:
-                    // set remaining attributes if not set already. Will trigger this method again.
-                    if (!this.setAttributes(Object.values(possibleVariations)[0]))
-                    {
-                        // all attributes are set => load variation data
-                        this.setVariation(Object.keys(possibleVariations)[0]);
-                    }
-                    else
-                    {
-                        // TODO: testen ob das geht
-                        this.onSelectionChange();
-                    }
-                }
+                this.handleSelectionChange();
             }
+        },
 
+        onUnitSelectionChange(selectedUnitCombinationId)
+        {
+            selectedUnitCombinationId = parseInt(selectedUnitCombinationId);
+            this.$store.commit("setSelectedUnitCombinationId", selectedUnitCombinationId);
+
+            this.handleSelectionChange();
+        },
+
+        handleSelectionChange()
+        {
             if (this.possibleUnitIds.length <= 1)
             {
-                this.selectedUnitId = 0;
+                this.$store.commit("setSelectedUnitCombinationId", 0);
             }
-            else if (this.selectedUnitId === 0)
+            else if (this.selectedUnitCombinationId === 0)
             {
-                this.selectedUnitId = this.possibleUnitIds[0];
+                this.$store.commit("setSelectedUnitCombinationId", this.possibleUnitIds[0]);
+            }
+
+            // search variations matching current selection
+            const possibleVariations = this.filterVariations();
+
+            console.log("NEW!", possibleVariations);
+
+            if (Object.keys(possibleVariations).length === 1)
+            {
+                // only 1 matching variation remaining:
+                // set remaining attributes if not set already. Will trigger this method again.
+                if (!this.setAttributes(Object.values(possibleVariations)[0]))
+                {
+                    // all attributes are set => load variation data
+                    this.setVariation(Object.keys(possibleVariations)[0]);
+                }
+                else
+                {
+                    // TODO: testen ob das geht
+                    this.onSelectionChange();
+                }
             }
         },
 

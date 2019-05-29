@@ -94,12 +94,10 @@ Vue.component("variation-select-old", {
 
                 if (!!preselectedVariation && preselectedVariation.length === 1)
                 {
-                    const attributes = this.attributes;
-
-                    // set attributes of preselected variation
+                    // set attributes of preselected variation TODO: EGAL!
                     this.setAttributes(preselectedVariation[0]);
 
-                    if ((preselectedVariation[0].attributes.length > 0 && this.unitPreselect > 0) || attributes.length === 0)
+                    if ((preselectedVariation[0].attributes.length > 0 && this.unitPreselect > 0) || this.attributes.length === 0)
                     {
                         const possibleVariations = this.filterVariations(this.selectedAttributes);
 
@@ -222,7 +220,7 @@ Vue.component("variation-select-old", {
             {
                 // search variations matching current selection
                 const possibleVariations = this.filterVariations();
-                console.log("NEW!", possibleVariations);
+                console.log("OLD!", possibleVariations);
                 if (possibleVariations.length === 1)
                 {
                     if (!this.selectedUnitId > 0)
@@ -234,11 +232,13 @@ Vue.component("variation-select-old", {
                     // set remaining attributes if not set already. Will trigger this method again.
                     if (!this.setAttributes(possibleVariations[0]))
                     {
+                        console.log("OLD - setVariation!");
                         // all attributes are set => load variation data
                         this.setVariation(possibleVariations[0].variationId);
                     }
                     else
                     {
+                        console.log("OLD - NEIN!");
                         this.onSelectionChange();
                     }
                 }

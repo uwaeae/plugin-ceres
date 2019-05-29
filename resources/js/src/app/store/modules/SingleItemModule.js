@@ -4,13 +4,14 @@ const ApiService = require("services/ApiService");
 
 const state =
     {
-        selectedAttributes: {},
         variation: {},
         variationDataCache: {},
         variationList: [],
         variationMarkInvalidProperties: false,
         variationOrderQuantity: 1,
-        variationUnitNames: {}
+        variationUnitNames: {},
+        selectedAttributes: {},
+        selectedUnitCombinationId: 0
     };
 
 const mutations =
@@ -71,6 +72,11 @@ const mutations =
         setVariationUnitNames(state, variationUnitNames)
         {
             state.variationUnitNames = variationUnitNames;
+        },
+
+        setSelectedUnitCombinationId(state, selectedUnitCombinationId)
+        {
+            state.selectedUnitCombinationId = selectedUnitCombinationId;
         }
     };
 

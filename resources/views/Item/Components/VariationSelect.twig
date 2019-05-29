@@ -4,7 +4,6 @@
 
             <div class="col-12 variation-select" v-for="(attribute, attributeKey) in attributes">
                 <div class="input-unit" ref="labelBoxRef">
-                    <!-- <select class="custom-select" v-model="selectedAttributes[attributeId]" @change="onSelectionChange(selectedAttributes[attributeId])"> -->
                     <select class="custom-select" @change="onSelectionChange(attributeKey, $event.target.value)">
                         <option :value="null" v-if="hasEmptyOption">{{ trans("Ceres::Template.singleItemPleaseSelect") }}</option>
                         <option
@@ -21,10 +20,10 @@
 
             <div class="col-12 variation-select" v-if="possibleUnitIds.length > 1">
                 <div class="input-unit">
-                    <select class="custom-select" v-model="selectedUnitId" @change="onSelectionChange(possibleUnitIds[selectedUnitId])">
-                        <option :value="0" v-if="hasEmptyOption">{{ trans("Ceres::Template.singleItemPleaseSelect") }}</option>
+                    <select class="custom-select" @change="onUnitSelectionChange($event.target.value)">
                         <option v-for="unitCombinationId in possibleUnitIds"
-                                :value="unitCombinationId">
+                                :value="unitCombinationId"
+                                :selected="selectedUnitCombinationId == unitCombinationId">
                             ${ variationUnitNames[unitCombinationId] }
                         </option>
                     </select>
