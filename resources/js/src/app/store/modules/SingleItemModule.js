@@ -1,9 +1,12 @@
 import { isNullOrUndefined } from "../../helper/utils";
 
+const ApiService = require("services/ApiService");
+
 const state =
     {
         selectedAttributes: {},
         variation: {},
+        variationDataCache: {},
         variationList: [],
         variationMarkInvalidProperties: false,
         variationOrderQuantity: 1,
@@ -19,6 +22,11 @@ const mutations =
             {
                 state.variationOrderQuantity = variation.documents[0].data.variation.minimumOrderQuantity || 1;
             }
+        },
+
+        setVariationDataCache(state, variation)
+        {
+            state.variationDataCache[variation.documents[0].id] = variation;
         },
 
         setVariationList(state, variationList)
@@ -68,6 +76,33 @@ const mutations =
 
 const actions =
     {
+        loadVariation({ state, commit }, variationId)
+        {
+            return new Promise(resolve =>
+            {
+                const variation = state.variationDataCache[variationId];
+
+                if (variation)
+                {
+                    commit("setVariation", variation);
+
+                    resolve(variation);
+                }
+                else
+                {
+                    ApiService
+                        .get(`/rest/io/variations/${variationId}`, { template: "Ceres::Item.SingleItem" })
+                        .done(response =>
+                        {
+                            // store received variation data for later reuse
+                            commit("setVariation", response);
+                            commit("setVariationDataCache", response);
+
+                            resolve(response);
+                        });
+                }
+            });
+        }
     };
 
 const getters =
