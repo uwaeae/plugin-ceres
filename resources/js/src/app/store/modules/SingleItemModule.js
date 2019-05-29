@@ -2,11 +2,12 @@ import { isNullOrUndefined } from "../../helper/utils";
 
 const state =
     {
+        selectedAttributes: {},
         variation: {},
         variationList: [],
-        variationOrderQuantity: 1,
         variationMarkInvalidProperties: false,
-        selectedAttributes: {}
+        variationOrderQuantity: 1,
+        variationUnitNames: {}
     };
 
 const mutations =
@@ -57,6 +58,11 @@ const mutations =
         setSelectedAttribute(state, { attributeKey, attributeValueKey })
         {
             state.selectedAttributes[attributeKey] = attributeValueKey;
+        },
+
+        setVariationUnitNames(state, variationUnitNames)
+        {
+            state.variationUnitNames = variationUnitNames;
         }
     };
 

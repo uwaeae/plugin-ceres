@@ -56,6 +56,7 @@ Vue.component("single-item", {
     {
         this.$store.commit("setVariation", this.itemData);
         this.$store.commit("setVariationList", this.variationListData);
+        this.$store.commit("setVariationUnitNames", this.variationUnits);
         this.$store.dispatch("addLastSeenItem", this.currentVariation.variation.id);
     }
 });
