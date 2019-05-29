@@ -19,13 +19,39 @@ Vue.component("variation-select", {
     data()
     {
         return {
-            selectedUnitId: 0,
-            possibleUnitIds: []
+            selectedUnitId: 0
         };
     },
 
     computed:
     {
+        possibleUnitIds()
+        {
+            let possibleUnitIds = [];
+
+            for (const variation of Object.values(this.variations))
+            {
+                let isValid = true;
+
+                for (const attributeKey in variation.attributes)
+                {
+                    if (variation.attributes[attributeKey] !== this.selectedAttributes[attributeKey])
+                    {
+                        isValid = false;
+                    }
+                }
+
+                if (isValid)
+                {
+                    possibleUnitIds.push(variation.unitCombinationId);
+                }
+            }
+
+            possibleUnitIds = [...new Set(possibleUnitIds)];
+
+            return possibleUnitIds;
+        },
+
         attributes()
         {
             return get(this.currentVariation, "variationAttributeMap.attributes");
@@ -67,7 +93,7 @@ Vue.component("variation-select", {
             {
                 const variation = this.variations[variationId];
                 const hasVariationAttributes = variation && Object.keys(variation.attributes).length;
-                const isSelectedUnitMatching = this.selectedUnitId === 0 || this.selectedUnitId === variation.unitId;
+                const isSelectedUnitMatching = this.selectedUnitId === 0 || this.selectedUnitId === variation.unitCombinationId;
 
                 if (!hasVariationAttributes || !isSelectedUnitMatching)
                 {
@@ -141,33 +167,16 @@ Vue.component("variation-select", {
             }
 
             const preselectedVariation = this.variations[this.currentVariation.variation.id];
-            // TODO: unitCombination mitbeachten
             const variationAttributes = preselectedVariation.attributes;
 
             attributes = { ...attributes, ...variationAttributes };
 
             this.$store.commit("setSelectedAttributes", attributes);
 
-
-            /*
-            ################################################################################################################################################################
-            */
-
             const unitPreselect = this.currentVariation.variation.unitCombinationId;
 
-            if (Object.keys(preselectedVariation.attributes).length && unitPreselect > 0 || Object.keys(this.attributes).length)
+            if (this.possibleUnitIds.length > 1)
             {
-                const possibleVariations = this.filterVariations(this.selectedAttributes);
-
-                if (Object.keys(possibleVariations).length)
-                {
-                    this.setUnits(possibleVariations);
-                }
-                else if (Object.keys(possibleVariations).length && Object.keys(this.attributes).length)
-                {
-                    this.setUnits(this.variations);
-                }
-
                 this.selectedUnitId = unitPreselect;
             }
         },
@@ -200,15 +209,11 @@ Vue.component("variation-select", {
             {
                 // search variations matching current selection
                 const possibleVariations = this.filterVariations();
+
                 console.log("NEW!", possibleVariations);
 
                 if (Object.keys(possibleVariations).length === 1)
                 {
-                    if (this.selectedUnitId <= 0)
-                    {
-                        this.possibleUnitIds = [];
-                    }
-
                     // only 1 matching variation remaining:
                     // set remaining attributes if not set already. Will trigger this method again.
                     if (!this.setAttributes(Object.values(possibleVariations)[0]))
@@ -222,14 +227,15 @@ Vue.component("variation-select", {
                         this.onSelectionChange();
                     }
                 }
-                else if (Object.keys(possibleVariations).length > 1)
-                {
-                    this.setUnits(possibleVariations);
-                }
-                else
-                {
-                    this.setUnits([]);
-                }
+            }
+
+            if (this.possibleUnitIds.length <= 1)
+            {
+                this.selectedUnitId = 0;
+            }
+            else if (this.selectedUnitId === 0)
+            {
+                this.selectedUnitId = this.possibleUnitIds[0];
             }
         },
 
@@ -249,28 +255,6 @@ Vue.component("variation-select", {
                 // TODO: SB_single_item:
                 this.$emit("is-valid-change", true);
             });
-        },
-
-        setUnits(variations)
-        {
-            console.log("set units");
-            let possibleUnitIds = [];
-
-            if (Object.keys(variations).length)
-            {
-                const values = Object.values(variations).map(variation => variation.unitCombinationId);
-
-                possibleUnitIds = [... new Set(values)];
-            }
-
-            if (possibleUnitIds.length)
-            {
-                this.possibleUnitIds = possibleUnitIds;
-            }
-            else
-            {
-                this.selectedUnitId = 0;
-            }
         }
     },
 
