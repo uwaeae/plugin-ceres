@@ -11,6 +11,7 @@ use Plenty\Plugin\ConfigRepository;
 class SingleItemContext extends GlobalContext implements ContextInterface
 {
     public $item;
+    public $variationAttributeMap;
 
     public $variations;
     public $attributeNameMap;
@@ -27,9 +28,10 @@ class SingleItemContext extends GlobalContext implements ContextInterface
         $configRepository = pluginApp(ConfigRepository::class);
 
         $this->item = $params['item'];
+        $this->variationAttributeMap = $params['variationAttributeMap'];
         $itemData = $this->item['documents'][0]['data'];
 
-        $availabiltyId = $itemData['variation']['availability']['id'];
+        $availabiltyId = $itemData['variation'][ 'availability']['id'];
         $mappedAvailability = $configRepository->get('Ceres.availability.mapping.availability' . $availabiltyId);
         $this->item['documents'][0]['data']['variation']['availability']['mappedAvailability'] = $mappedAvailability;
 

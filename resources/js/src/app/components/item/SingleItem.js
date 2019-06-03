@@ -2,13 +2,23 @@ import { transformVariationProperties } from "../../services/VariationPropertySe
 
 Vue.component("single-item", {
 
-    delimiters: ["${", "}"],
-
-    props: [
-        "template",
-        "attributeNameMap",
-        "variationUnits"
-    ],
+    props:
+    {
+        template:
+        {
+            type: String,
+            default: "#vue-single-item"
+        },
+        variationAttributeMap:
+        {
+            type: [Object, null],
+            default: null
+        },
+        // deprecated
+        attributeNameMap: Object,
+        // deprecated
+        variationUnits: Object
+    },
 
     jsonDataFields: [
         "itemData",
