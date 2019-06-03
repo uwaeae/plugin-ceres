@@ -59,8 +59,29 @@ Vue.component("variation-select", {
 
         hasEmptyOption()
         {
-            // TODO: implementieren!
-            return true;
+            const hasEmptyVariation = Object.values(this.variations).some(variation =>
+                Object.keys(variation.attributes).length === 0
+            );
+            const preselectedVariationExists = isDefined(this.variations[this.preselectedVariationId]);
+
+            if (hasEmptyVariation || !preselectedVariationExists)
+            {
+                // main variation is selectable
+                return true;
+            }
+
+            // Check if all possible combinations can be selected or if an empty option is required to reset the current selection
+            const attributeCombinationCount = Object.keys(this.attributes)
+                .map(attributeId =>
+                {
+                    return Object.keys(this.attributes[attributeId].values).length;
+                })
+                .reduce((prod, current) =>
+                {
+                    return prod * current;
+                }, 1);
+
+            return (attributeCombinationCount * Object.keys(this.variationUnitNames).length) !== Object.keys(this.variations).length;
         },
 
         ...Vuex.mapState({
@@ -76,6 +97,13 @@ Vue.component("variation-select", {
                 return state.item.variationAttributeMap.variations;
             }
         })
+    },
+
+    data()
+    {
+        return {
+            preselectedVariationId: null
+        };
     },
 
     mounted()
@@ -174,6 +202,8 @@ Vue.component("variation-select", {
             {
                 attributes[attributeId] = null;
             }
+
+            this.preselectedVariationId = this.currentVariation.variation.id;
 
             const preselectedVariation = this.variations[this.currentVariation.variation.id];
             const variationAttributes = preselectedVariation.attributes;
