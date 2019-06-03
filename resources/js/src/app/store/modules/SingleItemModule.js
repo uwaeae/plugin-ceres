@@ -1,4 +1,5 @@
 import { isNullOrUndefined } from "../../helper/utils";
+import { setUrlByItem } from "../../services/UrlService";
 
 const ApiService = require("services/ApiService");
 
@@ -6,12 +7,11 @@ const state =
     {
         variation: {},
         variationDataCache: {},
-        variationList: [],
         variationMarkInvalidProperties: false,
         variationOrderQuantity: 1,
-        variationUnitNames: {},
         selectedAttributes: {},
-        selectedUnitCombinationId: 0
+        selectedUnitCombinationId: 0,
+        variationAttributeMap: { attributes: {}, variations: {} }
     };
 
 const mutations =
@@ -28,11 +28,6 @@ const mutations =
         setVariationDataCache(state, variation)
         {
             state.variationDataCache[variation.documents[0].id] = variation;
-        },
-
-        setVariationList(state, variationList)
-        {
-            state.variationList = variationList;
         },
 
         setVariationOrderProperty(state, { propertyId, value })
@@ -69,14 +64,14 @@ const mutations =
             state.selectedAttributes[attributeKey] = attributeValueKey;
         },
 
-        setVariationUnitNames(state, variationUnitNames)
-        {
-            state.variationUnitNames = variationUnitNames;
-        },
-
         setSelectedUnitCombinationId(state, selectedUnitCombinationId)
         {
             state.selectedUnitCombinationId = selectedUnitCombinationId;
+        },
+
+        setVariationAttributeMap(state, variationAttributeMap)
+        {
+            state.variationAttributeMap = variationAttributeMap;
         }
     };
 
@@ -92,6 +87,7 @@ const actions =
                 {
                     commit("setVariation", variation);
 
+                    setUrlByItem(variation.documents[0].data);
                     resolve(variation);
                 }
                 else
@@ -101,10 +97,11 @@ const actions =
                         .done(response =>
                         {
                             // store received variation data for later reuse
-                            commit("setVariation", response);
-                            commit("setVariationDataCache", response);
+                            commit("setVariation", response.variation);
+                            commit("setVariationDataCache", response.variation);
 
-                            resolve(response);
+                            setUrlByItem(response.variation.documents[0].data);
+                            resolve(response.variation);
                         });
                 }
             });

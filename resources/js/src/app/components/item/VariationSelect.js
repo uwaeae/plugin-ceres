@@ -45,14 +45,16 @@ Vue.component("variation-select", {
             return possibleUnitIds;
         },
 
-        attributes()
+        variationUnitNames()
         {
-            return get(this.currentVariation, "variationAttributeMap.attributes");
-        },
+            const variationUnitNames = {};
 
-        variations()
-        {
-            return get(this.currentVariation, "variationAttributeMap.variations");
+            for (const variation of Object.values(this.variations))
+            {
+                variationUnitNames[variation.unitCombinationId] = variation.unitName;
+            }
+
+            return variationUnitNames;
         },
 
         hasEmptyOption()
@@ -63,9 +65,16 @@ Vue.component("variation-select", {
 
         ...Vuex.mapState({
             currentVariation: state => state.item.variation.documents[0].data,
-            variationUnitNames: state => state.item.variationUnitNames,
             selectedAttributes: state => state.item.selectedAttributes,
-            selectedUnitCombinationId: state => state.item.selectedUnitCombinationId
+            selectedUnitCombinationId: state => state.item.selectedUnitCombinationId,
+            attributes(state)
+            {
+                return state.item.variationAttributeMap.attributes;
+            },
+            variations(state)
+            {
+                return state.item.variationAttributeMap.variations;
+            }
         })
     },
 
@@ -226,8 +235,6 @@ Vue.component("variation-select", {
             // search variations matching current selection
             const possibleVariations = this.filterVariations();
 
-            console.log("NEW!", possibleVariations);
-
             if (Object.keys(possibleVariations).length === 1)
             {
                 // only 1 matching variation remaining:
@@ -261,25 +268,6 @@ Vue.component("variation-select", {
                 // TODO: SB_single_item:
                 this.$emit("is-valid-change", true);
             });
-        }
-    },
-
-    watch:
-    {
-        currentVariation:
-        {
-            handler(newVariation, oldVariation)
-            {
-                if (oldVariation)
-                {
-                    const url = this.$options.filters.itemURL(newVariation);
-                    const title = document.getElementsByTagName("title")[0].innerHTML;
-
-                    window.history.replaceState({}, title, url);
-                    document.dispatchEvent(new CustomEvent("onHistoryChanged", { detail: { title: title, url:url } }));
-                }
-            },
-            deep: true
         }
     }
 });

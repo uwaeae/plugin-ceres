@@ -14,8 +14,6 @@ class SingleItemContext extends GlobalContext implements ContextInterface
     public $variationAttributeMap;
 
     public $variations;
-    public $attributeNameMap;
-    public $variationUnits;
     public $customerShowNetPrices;
 
     public function init($params)
@@ -39,10 +37,6 @@ class SingleItemContext extends GlobalContext implements ContextInterface
         $itemService = pluginApp(ItemService::class);
 
         $this->variations = $itemService->getVariationAttributeMap($itemData['item']['id']);
-
-        $list = $itemService->getAttributeNameMap($itemData['item']['id']);
-        $this->attributeNameMap = $list['attributes'];
-        $this->variationUnits = $list['units'];
 
         $this->customerShowNetPrices = $customerService->showNetPrices();
 

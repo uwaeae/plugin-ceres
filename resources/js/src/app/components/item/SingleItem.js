@@ -13,16 +13,11 @@ Vue.component("single-item", {
         {
             type: [Object, null],
             default: null
-        },
-        // deprecated
-        attributeNameMap: Object,
-        // deprecated
-        variationUnits: Object
+        }
     },
 
     jsonDataFields: [
-        "itemData",
-        "variationListData"
+        "itemData"
     ],
 
     data()
@@ -66,8 +61,7 @@ Vue.component("single-item", {
     {
         this.$store.commit("setVariation", this.itemData);
         this.$store.commit("setVariationDataCache", this.itemData);
-        this.$store.commit("setVariationList", this.variationListData);
-        this.$store.commit("setVariationUnitNames", this.variationUnits);
+        this.$store.commit("setVariationAttributeMap", this.variationAttributeMap);
         this.$store.dispatch("addLastSeenItem", this.currentVariation.variation.id);
     }
 });
