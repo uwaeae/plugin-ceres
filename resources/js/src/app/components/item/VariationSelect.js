@@ -124,10 +124,16 @@ Vue.component("variation-select", {
             return result;
         },
 
-        isEnabled()
+        isEnabled(attributeId, attributeValueId)
         {
-            // TODO: implementieren!
-            return true;
+            attributeValueId = parseInt(attributeValueId);
+            // clone selectedAttributes to avoid touching objects bound to UI
+            const attributes = JSON.parse(JSON.stringify(this.selectedAttributes));
+
+            attributes[attributeId] = attributeValueId;
+            const possibleVariations = this.filterVariations(attributes);
+
+            return Object.keys(possibleVariations).length > 0;
         },
 
         setAttributes(variation)

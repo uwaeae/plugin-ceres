@@ -10,7 +10,7 @@
                             v-for="(value, attributeValueKey) in attribute.values"
                             :value="attributeValueKey"
                             :selected="selectedAttributes[attributeKey] == attributeValueKey"
-                            :disabled="!isEnabled(value, attributeValueKey)">
+                            :disabled="!isEnabled(attributeKey, attributeValueKey)">
                             ${ value.name }
                         </option>
                     </select>
