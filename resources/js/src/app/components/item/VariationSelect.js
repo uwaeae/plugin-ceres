@@ -1,4 +1,3 @@
-import get from "lodash/get";
 import { isDefined } from "../../helper/utils";
 
 Vue.component("variation-select", {
