@@ -113,35 +113,7 @@ Vue.component("variation-select", {
             return variations;
         },
 
-        isEnabled(attributeId, attributeValueId)
-        {
-            attributeValueId = parseInt(attributeValueId);
-            // clone selectedAttributes to avoid touching objects bound to UI
-            const attributes = JSON.parse(JSON.stringify(this.selectedAttributes));
-
-            attributes[attributeId] = attributeValueId;
-            const possibleVariations = this.filterVariations(attributes);
-
-            return Object.keys(possibleVariations).length > 0;
-        },
-
-        setAttributes(variation)
-        {
-            let hasChanges = false;
-
-            for (const attributeId in variation.attributes)
-            {
-                const attributeValueId = variation.attributes[attributeId];
-
-                if (this.selectedAttributes[attributeId] !== value)
-                {
-                    this.$store.commit("setSelectedAttribute", { attributeId, attributeValueId });
-                    hasChanges = true;
-                }
-            }
-
-            return hasChanges;
-        },
+        
 
         isTextCut(name)
         {
@@ -220,37 +192,6 @@ Vue.component("variation-select", {
             this.handleSelectionChange();
         },
 
-        handleSelectionChange()
-        {
-            if (this.possibleUnitIds.length <= 1)
-            {
-                this.$store.commit("setSelectedUnitCombinationId", 0);
-            }
-            else if (this.selectedUnitCombinationId === 0)
-            {
-                this.$store.commit("setSelectedUnitCombinationId", this.possibleUnitIds[0]);
-            }
-
-            // search variations matching current selection
-            const possibleVariations = this.filterVariations();
-
-            if (Object.keys(possibleVariations).length === 1)
-            {
-                // only 1 matching variation remaining:
-                // set remaining attributes if not set already. Will trigger this method again.
-                if (!this.setAttributes(Object.values(possibleVariations)[0]))
-                {
-                    // all attributes are set => load variation data
-                    this.setVariation(Object.keys(possibleVariations)[0]);
-                }
-                else
-                {
-                    // TODO: testen ob das geht
-                    this.onSelectionChange();
-                }
-            }
-        },
-
         setVariation(variationId)
         {
             this.$store.dispatch("loadVariation", variationId).then(variation =>
@@ -269,15 +210,25 @@ Vue.component("variation-select", {
             });
         },
 
-        /**
-         * NEW
-         */
+        setAttributesForVariation(variation)
+        {
+            for (const attribute of variation.attributes)
+            {
+                this.$store.commit("setSelectedAttribute", { attributeId: attribute.attributeId, attributeValueId: attribute.attributeValueId });
+            }
+            this.$store.commit("setSelectedUnitCombinationId", variation.unitCombinationId);
+        },
 
         selectAttribute(attributeId, attributeValueId)
         {
             attributeValueId = parseInt(attributeValueId) || null;
             this.$store.commit("setSelectedAttribute", { attributeId, attributeValueId });
 
+            this.onAttributeSelected(attributeId, attributeValueId);
+        },
+
+        onAttributeSelected(attributeId, attributeValueId)
+        {
             const filteredVariations = this.filterVariations();
 
             if (filteredVariations.length === 0)
@@ -298,6 +249,11 @@ Vue.component("variation-select", {
                 });
 
                 this.correctSelection(validVariations, true);
+                this.onAttributeSelected(attributeId, attributeValueId);
+            }
+            else if (filteredVariations.length === 1)
+            {
+                this.setAttributesForVariation(filteredVariations[0]);
             }
         },
 
