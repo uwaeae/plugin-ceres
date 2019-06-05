@@ -89,10 +89,66 @@ Vue.component("variation-select", {
             selectedUnitCombinationId: state => state.item.selectedUnitCombinationId,
             attributes(state)
             {
+                const newAttributes = [];
+
+                for (const attributeId in state.item.variationAttributeMap.attributes)
+                {
+                    const attribute = state.item.variationAttributeMap.attributes[attributeId];
+
+                    const newAttribute = {
+                        attributeId,
+                        ...attribute
+                    };
+
+                    const values = [];
+
+                    for (const valueId in attribute.values)
+                    {
+                        values.push({
+                            valueId: valueId,
+                            ...attribute.values[valueId]
+                        });
+                    }
+
+                    newAttribute.values = values;
+                    newAttributes.push(newAttribute);
+                }
+
+                console.log(newAttributes);
+
                 return state.item.variationAttributeMap.attributes;
             },
             variations(state)
             {
+                const newVariations = [];
+
+                for (const variationId in state.item.variationAttributeMap.variations)
+                {
+                    const variation = state.item.variationAttributeMap.variations[variationId];
+
+                    const newVariation = {
+                        variationId,
+                        ...variation
+                    };
+
+                    const attributes = [];
+
+                    for (const attributeId in variation.attributes)
+                    {
+                        const attrValue = {};
+
+                        attrValue.attributeId = attributeId;
+                        attrValue.value = variation.attributes[attributeId];
+
+                        attributes.push(attrValue);
+                    }
+
+                    newVariation.attributes = attributes;
+                    newVariations.push(newVariation);
+                }
+
+                console.log(newVariations);
+
                 return state.item.variationAttributeMap.variations;
             }
         })
@@ -303,6 +359,155 @@ Vue.component("variation-select", {
                 // TODO: SB_single_item:
                 this.$emit("is-valid-change", true);
             });
+        },
+
+        /**
+         * NEW
+         */
+
+        testAttr(attributeKey, attributeValueKey)
+        {
+            attributeValueKey = parseInt(attributeValueKey) || null;
+            this.$store.commit("setSelectedAttribute", { attributeKey, attributeValueKey });
+
+            const attributes = JSON.parse(JSON.stringify(this.selectedAttributes));
+
+            attributes[attributeKey] = attributeValueKey;
+
+            const filteredVariations = this.newFilterVariations();
+
+            if (Object.keys(filteredVariations).length === 0)
+            {
+                this.resetInvalidAttributes(attributeKey, attributeValueKey);
+            }
+        },
+
+        resetInvalidAttributes(attributeKey, attributeValueKey)
+        {
+            // TODO: hier die variante raussuchen wo am wenigsten resetted werden muss!
+            for (const variationId in this.variations)
+            {
+                const variation = this.variations[variationId];
+
+                if (variation.attributes[attributeKey] === attributeValueKey)
+                {
+                    for (const variationAttributeKey in variation.attributes)
+                    {
+                        if (variationAttributeKey !== attributeKey)
+                        {
+                            if (variation.attributes[variationAttributeKey] !== this.selectedAttributes[variationAttributeKey])
+                            {
+                                console.log("RESET:", variationAttributeKey);
+                                this.$store.commit("setSelectedAttribute", { attributeKey: variationAttributeKey, attributeValueKey: null });
+                            }
+                        }
+                    }
+
+                    if (this.selectedUnitCombinationId !== 0 && this.selectedUnitCombinationId !== variation.unitCombinationId)
+                    {
+                        console.log("RESET:", "unitID");
+                        this.$store.commit("setSelectedUnitCombinationId", variation.unitCombinationId);
+                    }
+                }
+            }
+        },
+
+        testUnit(unitCombinationId)
+        {
+            unitCombinationId = parseInt(unitCombinationId) || null;
+            this.$store.commit("setSelectedUnitCombinationId", unitCombinationId);
+
+            const filteredVariations = this.newFilterVariations();
+
+            if (Object.keys(filteredVariations).length === 0)
+            {
+                this.resetInvalidUnit(unitCombinationId);
+            }
+        },
+
+        resetInvalidUnit(unitCombinationId)
+        {
+            const variations = Object.values(this.variations);
+        },
+
+        newFilterVariations(attributes, selectedUnitCombinationId = this.selectedUnitCombinationId)
+        {
+            attributes = attributes || this.selectedAttributes;
+            const variations = JSON.parse(JSON.stringify(this.variations));
+
+            /**
+             * remove it, when one attribute doesn't match
+             */
+            for (const variationId in variations)
+            {
+                const variation = variations[variationId];
+
+                /**
+                 * variation without attributes
+                 */
+                if (Object.keys(variation.attributes).length === 0)
+                {
+                    delete variations[variationId];
+                }
+
+                for (const attributeKey in variation.attributes)
+                {
+                    /**
+                     * one attribute is not matching with the selection
+                     */
+                    if (attributes[attributeKey] !== variation.attributes[attributeKey])
+                    {
+                        delete variations[variationId];
+                    }
+                }
+
+                /**
+                 * the selected unit does not match with the variations'
+                 */
+                if (selectedUnitCombinationId !== 0 && variation.unitCombinationId !== selectedUnitCombinationId)
+                {
+                    delete variations[variationId];
+                }
+            }
+
+            return variations;
+        },
+
+        testEnabled(attributeKey, attributeValueKey)
+        {
+            attributeValueKey = parseInt(attributeValueKey) || null;
+            const attributes = JSON.parse(JSON.stringify(this.selectedAttributes));
+
+            if (this.selectedAttributes[attributeKey] === attributeValueKey)
+            {
+                return "";
+            }
+
+            attributes[attributeKey] = attributeValueKey;
+
+            return this.lol(this.newFilterVariations(attributes));
+        },
+
+        testEnabledByUnit(unitCombinationId)
+        {
+            unitCombinationId = parseInt(unitCombinationId) || null;
+
+            if (this.selectedUnitCombinationId === unitCombinationId)
+            {
+                return "";
+            }
+
+            return this.lol(this.newFilterVariations(null, unitCombinationId));
+        },
+
+        lol(lol)
+        {
+            if (Object.keys(lol).length)
+            {
+                return "";
+            }
+
+            return "NO!";
         }
     }
 });

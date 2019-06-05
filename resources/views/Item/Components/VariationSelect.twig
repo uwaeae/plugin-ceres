@@ -2,6 +2,55 @@
     <div>
         <div class="row">
 
+            <div class="col-12">
+                <div v-for="(value, key) in selectedAttributes">
+                    <span>${ key }: </span>
+                    <span>${ value }</span>
+                </div>
+                <div>
+                    <span>Inhalt: </span>
+                    <span>${ variationUnitNames[selectedUnitCombinationId] }</span>
+                </div>
+            </div>
+
+            <div class="col-12 variation-select" v-for="(attribute, attributeKey) in attributes">
+                <div class="input-unit" ref="labelBoxRef">
+                    <!-- <select class="custom-select" @change="onSelectionChange(attributeKey, $event.target.value)"> -->
+                    <select class="custom-select" @change="testAttr(attributeKey, $event.target.value)">
+                        <option :value="null" v-if="hasEmptyOption">{{ trans("Ceres::Template.singleItemPleaseSelect") }}</option>
+                        <option
+                            v-for="(value, attributeValueKey) in attribute.values"
+                            :value="attributeValueKey"
+                            :selected="selectedAttributes[attributeKey] == attributeValueKey">
+                            ${ value.name } ${ testEnabled(attributeKey, attributeValueKey) }
+                        </option>
+                    </select>
+
+                    <label v-tooltip="isTextCut(attribute.name)" data-toggle="tooltip" data-placement="top" :title="attribute.name">
+                        ${ attribute.name }
+                    </label>
+                </div>
+            </div>
+
+            <div class="col-12 variation-select">
+                <div class="input-unit">
+                    <!-- <select class="custom-select" @change="onUnitSelectionChange($event.target.value)"> -->
+                    <select class="custom-select" @change="testUnit($event.target.value)">
+                        <option v-for="(unitName, unitId) in variationUnitNames"
+                                :value="unitId"
+                                :selected="selectedUnitCombinationId == unitId">
+                            ${ unitName } ${ testEnabledByUnit(unitId) }
+                        </option>
+                    </select>
+
+                    <label v-tooltip data-toggle="tooltip" data-placement="top" title="{{ trans("Ceres::Template.singleItemContent") }}">
+                        {{ trans("Ceres::Template.singleItemContent") }}
+                    </label>
+                </div>
+            </div>
+
+            {#
+            // old attributes
             <div class="col-12 variation-select" v-for="(attribute, attributeKey) in attributes">
                 <div class="input-unit" ref="labelBoxRef">
                     <select class="custom-select" @change="onSelectionChange(attributeKey, $event.target.value)">
@@ -9,15 +58,16 @@
                         <option
                             v-for="(value, attributeValueKey) in attribute.values"
                             :value="attributeValueKey"
-                            :selected="selectedAttributes[attributeKey] == attributeValueKey"
-                            :disabled="!isEnabled(attributeKey, attributeValueKey)">
-                            ${ value.name }
+                            :selected="selectedAttributes[attributeKey] == attributeValueKey">
+                            ${ value.name } ${ !isEnabled(attributeKey, attributeValueKey) ? ' - (leer)' : '' }
                         </option>
                     </select>
                     <label v-tooltip="isTextCut(attribute.name)" data-toggle="tooltip" data-placement="top" :title="attribute.name">${ attribute.name }</label>
                 </div>
             </div>
-
+            #}
+            {#
+            // old units
             <div class="col-12 variation-select" v-if="possibleUnitIds.length > 1">
                 <div class="input-unit">
                     <select class="custom-select" @change="onUnitSelectionChange($event.target.value)">
@@ -30,7 +80,7 @@
                     <label v-tooltip data-toggle="tooltip" data-placement="top" title="{{ trans("Ceres::Template.singleItemContent") }}">{{ trans("Ceres::Template.singleItemContent") }}</label>
                 </div>
             </div>
-
+            #}
         </div>
     </div>
 </script>
