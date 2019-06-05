@@ -1,5 +1,3 @@
-import { isDefined } from "../../helper/utils";
-
 Vue.component("variation-select", {
 
     props: {
@@ -19,36 +17,16 @@ Vue.component("variation-select", {
     {
         possibleUnitIds()
         {
-            let possibleUnitIds = [];
+            const possibleUnitIds = this.variations.map(variation => variation.unitCombinationId);
 
-            for (const variation of Object.values(this.variations))
-            {
-                let isValid = true;
-
-                for (const attributeKey in variation.attributes)
-                {
-                    if (variation.attributes[attributeKey] !== this.selectedAttributes[attributeKey])
-                    {
-                        isValid = false;
-                    }
-                }
-
-                if (isValid)
-                {
-                    possibleUnitIds.push(variation.unitCombinationId);
-                }
-            }
-
-            possibleUnitIds = [...new Set(possibleUnitIds)];
-
-            return possibleUnitIds;
+            return [...new Set(possibleUnitIds)];
         },
 
         variationUnitNames()
         {
             const variationUnitNames = {};
 
-            for (const variation of Object.values(this.variations))
+            for (const variation of this.variations)
             {
                 variationUnitNames[variation.unitCombinationId] = variation.unitName;
             }
@@ -58,10 +36,8 @@ Vue.component("variation-select", {
 
         hasEmptyOption()
         {
-            const hasEmptyVariation = Object.values(this.variations).some(variation =>
-                Object.keys(variation.attributes).length === 0
-            );
-            const preselectedVariationExists = isDefined(this.variations[this.preselectedVariationId]);
+            const hasEmptyVariation = this.variations.some(variation => variation.attributes.length === 0);
+            const preselectedVariationExists = !!this.variations.find(variation => variation.variationId == this.preselectedVariationId);
 
             if (hasEmptyVariation || !preselectedVariationExists)
             {
@@ -70,87 +46,25 @@ Vue.component("variation-select", {
             }
 
             // Check if all possible combinations can be selected or if an empty option is required to reset the current selection
-            const attributeCombinationCount = Object.keys(this.attributes)
-                .map(attributeId =>
+            const attributeCombinationCount = this.attributes
+                .map(attribute =>
                 {
-                    return Object.keys(this.attributes[attributeId].values).length;
+                    return attribute.values.length;
                 })
                 .reduce((prod, current) =>
                 {
                     return prod * current;
                 }, 1);
 
-            return (attributeCombinationCount * Object.keys(this.variationUnitNames).length) !== Object.keys(this.variations).length;
+            return (attributeCombinationCount * Object.keys(this.variationUnitNames).length) !== this.variations.length;
         },
 
         ...Vuex.mapState({
             currentVariation: state => state.item.variation.documents[0].data,
             selectedAttributes: state => state.item.selectedAttributes,
             selectedUnitCombinationId: state => state.item.selectedUnitCombinationId,
-            attributes(state)
-            {
-                const newAttributes = [];
-
-                for (const attributeId in state.item.variationAttributeMap.attributes)
-                {
-                    const attribute = state.item.variationAttributeMap.attributes[attributeId];
-
-                    const newAttribute = {
-                        attributeId,
-                        ...attribute
-                    };
-
-                    const values = [];
-
-                    for (const valueId in attribute.values)
-                    {
-                        values.push({
-                            valueId: valueId,
-                            ...attribute.values[valueId]
-                        });
-                    }
-
-                    newAttribute.values = values;
-                    newAttributes.push(newAttribute);
-                }
-
-                console.log(newAttributes);
-
-                return state.item.variationAttributeMap.attributes;
-            },
-            variations(state)
-            {
-                const newVariations = [];
-
-                for (const variationId in state.item.variationAttributeMap.variations)
-                {
-                    const variation = state.item.variationAttributeMap.variations[variationId];
-
-                    const newVariation = {
-                        variationId,
-                        ...variation
-                    };
-
-                    const attributes = [];
-
-                    for (const attributeId in variation.attributes)
-                    {
-                        const attrValue = {};
-
-                        attrValue.attributeId = attributeId;
-                        attrValue.value = variation.attributes[attributeId];
-
-                        attributes.push(attrValue);
-                    }
-
-                    newVariation.attributes = attributes;
-                    newVariations.push(newVariation);
-                }
-
-                console.log(newVariations);
-
-                return state.item.variationAttributeMap.variations;
-            }
+            attributes: state => state.item.variationAttributeMap.attributes,
+            variations: state => state.item.variationAttributeMap.variations
         })
     },
 
@@ -171,40 +85,32 @@ Vue.component("variation-select", {
 
     methods:
     {
-        filterVariations(selectedAttributes = this.selectedAttributes)
+        filterVariations(attributes, unitCombinationId = this.selectedUnitCombinationId)
         {
-            const result = {};
+            attributes = attributes || this.selectedAttributes;
 
-            for (const variationId in this.variations)
+            let variations = this.variations.filter(variation =>
             {
-                const variation = this.variations[variationId];
-                const hasVariationAttributes = variation && Object.keys(variation.attributes).length;
-                const isSelectedUnitMatching = this.selectedUnitCombinationId === 0 || this.selectedUnitCombinationId === variation.unitCombinationId;
-
-                if (!hasVariationAttributes || !isSelectedUnitMatching)
+                for (const attribute of variation.attributes)
                 {
-                    continue;
-                }
+                    const attributeId = attribute.attributeId;
+                    const value = attribute.attributeValueId;
 
-                let isValid = true;
-
-                for (const attributeId in variation.attributes)
-                {
-                    const attributeValue = variation.attributes[attributeId];
-
-                    if (isDefined(selectedAttributes[attributeId]) && selectedAttributes[attributeId] != attributeValue)
+                    if (!!attributes[attributeId] && attributes[attributeId] != value)
                     {
-                        isValid = false;
+                        return false;
                     }
                 }
 
-                if (isValid)
-                {
-                    result[variationId] = this.variations[variationId];
-                }
-            }
+                return variation.attributes.length > 0;
+            });
 
-            return result;
+            variations = variations.filter(variation =>
+            {
+                return this.selectedUnitCombinationId === 0 || unitCombinationId === variation.unitCombinationId;
+            });
+
+            return variations;
         },
 
         isEnabled(attributeId, attributeValueId)
@@ -223,13 +129,13 @@ Vue.component("variation-select", {
         {
             let hasChanges = false;
 
-            for (const attributeKey in variation.attributes)
+            for (const attributeId in variation.attributes)
             {
-                const val = variation.attributes[attributeKey];
+                const attributeValueId = variation.attributes[attributeId];
 
-                if (this.selectedAttributes[attributeKey] !== val)
+                if (this.selectedAttributes[attributeId] !== value)
                 {
-                    this.$store.commit("setSelectedAttribute", { attributeKey, attributeValueKey: val });
+                    this.$store.commit("setSelectedAttribute", { attributeId, attributeValueId });
                     hasChanges = true;
                 }
             }
@@ -253,17 +159,19 @@ Vue.component("variation-select", {
         {
             let attributes = {};
 
-            for (const attributeId in this.attributes)
+            for (const attribute of this.attributes)
             {
-                attributes[attributeId] = null;
+                attributes[attribute.attributeId] = null;
             }
 
             this.preselectedVariationId = this.currentVariation.variation.id;
 
-            const preselectedVariation = this.variations[this.currentVariation.variation.id];
-            const variationAttributes = preselectedVariation.attributes;
+            const preselectedVariation = this.variations.find(variation => variation.variationId == this.currentVariation.variation.id);
 
-            attributes = { ...attributes, ...variationAttributes };
+            for (const attributeId in attributes)
+            {
+                attributes[attributeId] = preselectedVariation.attributes.find(attribute => attribute.attributeId == attributeId).attributeValueId;
+            }
 
             this.$store.commit("setSelectedAttributes", attributes);
 
@@ -275,12 +183,12 @@ Vue.component("variation-select", {
             }
         },
 
-        onSelectionChange(attributeKey, attributeValueKey)
+        onSelectionChange(attributeId, attributeValueId)
         {
-            attributeValueKey = parseInt(attributeValueKey) || null;
-            this.$store.commit("setSelectedAttribute", { attributeKey, attributeValueKey });
+            value = parseInt(value) || null;
+            this.$store.commit("setSelectedAttribute", { attributeId, attributeValueId });
 
-            if (!attributeValueKey)
+            if (!value)
             {
                 const values = Object.values(this.selectedAttributes);
                 const uniqueValues = [... new Set(values)];
@@ -365,127 +273,103 @@ Vue.component("variation-select", {
          * NEW
          */
 
-        testAttr(attributeKey, attributeValueKey)
+        selectAttribute(attributeId, attributeValueId)
         {
-            attributeValueKey = parseInt(attributeValueKey) || null;
-            this.$store.commit("setSelectedAttribute", { attributeKey, attributeValueKey });
+            attributeValueId = parseInt(attributeValueId) || null;
+            this.$store.commit("setSelectedAttribute", { attributeId, attributeValueId });
 
-            const attributes = JSON.parse(JSON.stringify(this.selectedAttributes));
+            const filteredVariations = this.filterVariations();
 
-            attributes[attributeKey] = attributeValueKey;
-
-            const filteredVariations = this.newFilterVariations();
-
-            if (Object.keys(filteredVariations).length === 0)
+            if (filteredVariations.length === 0)
             {
-                this.resetInvalidAttributes(attributeKey, attributeValueKey);
-            }
-        },
-
-        resetInvalidAttributes(attributeKey, attributeValueKey)
-        {
-            // TODO: hier die variante raussuchen wo am wenigsten resetted werden muss!
-            for (const variationId in this.variations)
-            {
-                const variation = this.variations[variationId];
-
-                if (variation.attributes[attributeKey] === attributeValueKey)
+                const validVariations = this.variations.filter(variation =>
                 {
-                    for (const variationAttributeKey in variation.attributes)
+                    const attribute = variation.attributes.find(attribute =>
                     {
-                        if (variationAttributeKey !== attributeKey)
-                        {
-                            if (variation.attributes[variationAttributeKey] !== this.selectedAttributes[variationAttributeKey])
-                            {
-                                console.log("RESET:", variationAttributeKey);
-                                this.$store.commit("setSelectedAttribute", { attributeKey: variationAttributeKey, attributeValueKey: null });
-                            }
-                        }
+                        return attribute.attributeId === attributeId;
+                    });
+
+                    if (!!attribute && attribute.attributeValueId === attributeValueId)
+                    {
+                        return true;
                     }
 
-                    if (this.selectedUnitCombinationId !== 0 && this.selectedUnitCombinationId !== variation.unitCombinationId)
-                    {
-                        console.log("RESET:", "unitID");
-                        this.$store.commit("setSelectedUnitCombinationId", variation.unitCombinationId);
-                    }
-                }
+                    return false;
+                });
+
+                this.correctSelection(validVariations, true);
             }
         },
 
-        testUnit(unitCombinationId)
+        selectUnit(unitCombinationId)
         {
             unitCombinationId = parseInt(unitCombinationId) || null;
             this.$store.commit("setSelectedUnitCombinationId", unitCombinationId);
 
-            const filteredVariations = this.newFilterVariations();
+            const filteredVariations = this.filterVariations();
 
-            if (Object.keys(filteredVariations).length === 0)
+            if (filteredVariations.length === 0)
             {
-                this.resetInvalidUnit(unitCombinationId);
+                const validVariations = this.variations.filter(variation => variation.unitCombinationId === unitCombinationId);
+
+                this.correctSelection(validVariations, false);
             }
         },
 
-        resetInvalidUnit(unitCombinationId)
+        // eslint-disable-next-line complexity
+        correctSelection(validVariations, considerUnit = true)
         {
-            const variations = Object.values(this.variations);
-        },
+            const validVariationCount = [];
 
-        newFilterVariations(attributes, selectedUnitCombinationId = this.selectedUnitCombinationId)
-        {
-            attributes = attributes || this.selectedAttributes;
-            const variations = JSON.parse(JSON.stringify(this.variations));
-
-            /**
-             * remove it, when one attribute doesn't match
-             */
-            for (const variationId in variations)
+            for (const variation of validVariations)
             {
-                const variation = variations[variationId];
+                let count = 0;
 
-                /**
-                 * variation without attributes
-                 */
-                if (Object.keys(variation.attributes).length === 0)
+                for (const attribute of variation.attributes)
                 {
-                    delete variations[variationId];
-                }
-
-                for (const attributeKey in variation.attributes)
-                {
-                    /**
-                     * one attribute is not matching with the selection
-                     */
-                    if (attributes[attributeKey] !== variation.attributes[attributeKey])
+                    if (!(this.selectedAttributes[attribute.attributeId] === attribute.attributeValueId))
                     {
-                        delete variations[variationId];
+                        count++;
                     }
                 }
-
-                /**
-                 * the selected unit does not match with the variations'
-                 */
-                if (selectedUnitCombinationId !== 0 && variation.unitCombinationId !== selectedUnitCombinationId)
+                if (considerUnit && variation.unitCombinationId !== this.selectedUnitCombinationId)
                 {
-                    delete variations[variationId];
+                    count++;
+                }
+
+                if (count > 0)
+                {
+                    validVariationCount.push({ variation, count });
                 }
             }
 
-            return variations;
+            const suggestiveVariation = validVariationCount.reduce((prev, current) => (prev.count < current.count) ? prev : current).variation;
+
+            for (const attribute of suggestiveVariation.attributes)
+            {
+                if (this.selectedAttributes[attribute.attributeId] !== attribute.attributeValueId)
+                {
+                    this.$store.commit("setSelectedAttribute", { attributeId: attribute.attributeId, attributeValueId: null });
+                }
+            }
+            if (considerUnit && this.selectedUnitCombinationId !== suggestiveVariation.unitCombinationId)
+            {
+                this.$store.commit("setSelectedUnitCombinationId", suggestiveVariation.unitCombinationId);
+            }
         },
 
-        testEnabled(attributeKey, attributeValueKey)
+        testEnabled(attributeKey, attributeValueId)
         {
-            attributeValueKey = parseInt(attributeValueKey) || null;
+            attributeValueId = parseInt(attributeValueId) || null;
             const attributes = JSON.parse(JSON.stringify(this.selectedAttributes));
 
-            if (this.selectedAttributes[attributeKey] === attributeValueKey)
+            if (this.selectedAttributes[attributeKey] === attributeValueId)
             {
-                return "";
+                return true;
             }
 
-            attributes[attributeKey] = attributeValueKey;
-
-            return this.lol(this.newFilterVariations(attributes));
+            attributes[attributeKey] = attributeValueId;
+            return !!this.filterVariations(attributes).length;
         },
 
         testEnabledByUnit(unitCombinationId)
@@ -494,20 +378,10 @@ Vue.component("variation-select", {
 
             if (this.selectedUnitCombinationId === unitCombinationId)
             {
-                return "";
+                return true;
             }
 
-            return this.lol(this.newFilterVariations(null, unitCombinationId));
-        },
-
-        lol(lol)
-        {
-            if (Object.keys(lol).length)
-            {
-                return "";
-            }
-
-            return "NO!";
+            return !!this.filterVariations(null, unitCombinationId).length;
         }
     }
 });

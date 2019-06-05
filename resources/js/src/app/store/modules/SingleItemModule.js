@@ -59,9 +59,9 @@ const mutations =
             state.selectedAttributes = selectedAttributes;
         },
 
-        setSelectedAttribute(state, { attributeKey, attributeValueKey })
+        setSelectedAttribute(state, { attributeId, attributeValueId })
         {
-            state.selectedAttributes[attributeKey] = attributeValueKey;
+            state.selectedAttributes[attributeId] = attributeValueId;
         },
 
         setSelectedUnitCombinationId(state, selectedUnitCombinationId)

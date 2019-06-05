@@ -13,16 +13,15 @@
                 </div>
             </div>
 
-            <div class="col-12 variation-select" v-for="(attribute, attributeKey) in attributes">
+            <div class="col-12 variation-select" v-for="(attribute) in attributes">
                 <div class="input-unit" ref="labelBoxRef">
-                    <!-- <select class="custom-select" @change="onSelectionChange(attributeKey, $event.target.value)"> -->
-                    <select class="custom-select" @change="testAttr(attributeKey, $event.target.value)">
+                    <select class="custom-select" @change="selectAttribute(attribute.attributeId, $event.target.value)">
                         <option :value="null" v-if="hasEmptyOption">{{ trans("Ceres::Template.singleItemPleaseSelect") }}</option>
                         <option
-                            v-for="(value, attributeValueKey) in attribute.values"
-                            :value="attributeValueKey"
-                            :selected="selectedAttributes[attributeKey] == attributeValueKey">
-                            ${ value.name } ${ testEnabled(attributeKey, attributeValueKey) }
+                            v-for="value in attribute.values"
+                            :value="value.attributeValueId"
+                            :selected="selectedAttributes[attribute.attributeId] == value.attributeValueId">
+                            ${ value.name } ${ testEnabled(attribute.attributeId, value.attributeValueId) ? "" : "(nicht verfügbar)" }
                         </option>
                     </select>
 
@@ -34,12 +33,11 @@
 
             <div class="col-12 variation-select">
                 <div class="input-unit">
-                    <!-- <select class="custom-select" @change="onUnitSelectionChange($event.target.value)"> -->
-                    <select class="custom-select" @change="testUnit($event.target.value)">
+                    <select class="custom-select" @change="selectUnit($event.target.value)">
                         <option v-for="(unitName, unitId) in variationUnitNames"
                                 :value="unitId"
                                 :selected="selectedUnitCombinationId == unitId">
-                            ${ unitName } ${ testEnabledByUnit(unitId) }
+                            ${ unitName } ${ testEnabledByUnit(unitId) ? "" : "(nicht verfügbar)" }
                         </option>
                     </select>
 
@@ -48,7 +46,6 @@
                     </label>
                 </div>
             </div>
-
             {#
             // old attributes
             <div class="col-12 variation-select" v-for="(attribute, attributeKey) in attributes">
