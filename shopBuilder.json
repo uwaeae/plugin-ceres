@@ -150,6 +150,6 @@
     },
     "globalSettingsHandler": "Ceres\\ShopBuilder\\Handler\\ShopBuilderSettingsHandler",
     "supportedFeatures": {
-        "individualHeaderFooterEnabled": false
+        "globalElementsOverride": false
     }
 }
