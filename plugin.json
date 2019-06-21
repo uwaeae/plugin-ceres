@@ -1,9 +1,9 @@
 {
     "version"           : "4.0.2",
-    "name"              : "Ceres",
-    "marketplaceName"   : {"de": "Ceres","en": "Ceres"},
+    "name"              : "ChiCeres",
+    "marketplaceName"   : {"de": "ChiCeres","en": "ChiCeres"},
     "description"       : "This is the official Ceres plugin developed by plentymarkets. Ceres is the default template plugin for plentymarkets 7 online stores.",
-    "author"            : "plentysystems AG",
+    "author"            : "Florian Engler",
     "license"           : "AGPL-3.0",
     "pluginIcon"        : "icon_plugin_xs.png",
     "price"             : 0.00,
