@@ -93,7 +93,7 @@
 	background-color: $footer-bg;
 	
 	a{
-		color: $footer-color;
+		color: $footer-color !important; 
 	}
 
 	.svg.plenty-brand {
@@ -159,6 +159,16 @@
 
 	.newsletter{
 		
+	}
+
+	.container-max{
+		background-color: #000000;
+		color: #ffffff; z-index: 1000; position: relative;
+		margin:0; 
+		display: flex; 
+		justify-content: center; 
+		align-items: center;
+		min-width:100%
 	}
 
 	.btn-mail {

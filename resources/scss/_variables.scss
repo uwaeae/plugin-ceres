@@ -82,11 +82,11 @@ $top-bar-basket-color:      color-yiq($top-bar-basket-btn);
 //
 // Footer
 //
-$footer-bg:                 $gray-lightest;
-$footer-color:              $gray-dark;
+$footer-bg:                 $black;
+$footer-color:              $white;
 
-$footer-features-bg:        darken($gray-lightest, 10%);
-$footer-features-color:     $gray-dark;
+$footer-features-bg:        $black;
+$footer-features-color:     $white;
 
 //
 // Availability
@@ -239,7 +239,7 @@ $zindex-tooltip:                    $zIndex-7 !default;
 $zindex-wrapper-top:                $zIndex-9 !default;
 
 // Navbar
-$navbar-background-color:           $gray-lightest !default;
+$navbar-background-color:           $white !default;
 $navbar-dark-color:                 $gray !default;
 $navbar-dark-disabled-color:        $gray-light !default;
 
@@ -267,7 +267,7 @@ $modal-sm:                          300px !default;
 // Breadcrumbs
 
 $breadcrumb-padding-y:              .5rem !default;
-$breadcrumb-bg:                     darken($gray-lighter2, 2%) !default;
+$breadcrumb-bg:                     $white !default;
 
 // Category
 
@@ -278,7 +278,7 @@ $category-text-color:               #fff !default;
 $live-shopping-padding-x:           0.8rem;
 $live-shopping-padding-y:           1rem;
 
-$component-active-bg:               $primary !default;
+$component-active-bg:               $white;
 $component-active-color:            color-yiq($component-active-bg) !default;
 
 // Shopbuilder
